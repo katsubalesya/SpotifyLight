@@ -1,0 +1,23 @@
+.layout {
+  min-height: 100vh;
+  background-color: #121212;
+  color: #ffffff;
+  gap: 20px
+
+}
+
+.body {
+  display: flex;
+  min-height: calc(100vh - 72px);
+
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 32px;
+  padding-bottom: 120px; /*Player.*/
+  overflow-y: auto;
+  gap: 20px
+
+}

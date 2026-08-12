@@ -1,0 +1,13 @@
+.home {
+  h1 {
+    margin: 0;
+
+    font-size: 32px;
+  }
+
+  p {
+    margin-top: 8px;
+
+    color: #b3b3b3;
+  }
+}
