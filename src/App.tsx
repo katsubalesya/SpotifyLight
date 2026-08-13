@@ -4,8 +4,6 @@ import { Router} from "./app/Router/Router";
 // import { useEffect } from "react";
 // import { Button } from "./shared/UI/Button";
 
-// const CLIENT_ID = '187a6ae3cd7c4e1aaa98fabcde1f08d4';
-
 function App() {
   // const [count, setCount] = useState(0)
 
