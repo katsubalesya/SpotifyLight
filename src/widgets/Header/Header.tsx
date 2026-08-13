@@ -1,5 +1,5 @@
 import { Search, User } from "lucide-react";
-import Logo from "../../../public/Primary_Logo_Green_PMS_C.svg"
+import Logo from "../../app/img,logo/Full_Logo_Black_CMYK.svg"
 import styles from "./Header.module.css";
 // import { Input } from "../../shared/UI/Input";
 

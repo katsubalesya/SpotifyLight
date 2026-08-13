@@ -2,22 +2,66 @@
   min-height: 100vh;
   background-color: #121212;
   color: #ffffff;
-  gap: 20px
 
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .body {
   display: flex;
+  flex: 1;
   min-height: calc(100vh - 72px);
+  min-width: 0;
+  overflow: hidden;
+}
 
+.content{
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.library {
+  flex: 0 0 330px;
+  min-width: 330px;
+  transition: flex-basis 0.3s ease;
+}
+
+.libraryEexpanded {
+  /* flex: 0 0 calc(100% - 300px); */
+  flex: 1;
 }
 
 .main {
   flex: 1;
   min-width: 0;
-  padding: 32px;
+  padding: 24px;
   padding-bottom: 120px; /*Player.*/
   overflow-y: auto;
-  gap: 20px
-
+  transition:
+    opacity 0.3s ease,
+    flex 0.3s ease;
 }
+
+
+
+.mainCollapsed {
+  /* width: 0;
+    flex: unset; */
+  flex: 0 0 0;
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* .playerSidebar {
+  flex: 0 0 30px;
+  width: 30px;
+
+  &:hover {
+    width: 50px;
+  }
+} */

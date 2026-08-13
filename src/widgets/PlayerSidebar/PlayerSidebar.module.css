@@ -1,5 +1,14 @@
-.plsidebar {
-  /* flex: 0 0 220px; */
+ .plSidebar {
+  flex: 0 0 30px;
+  width: 30px;
+
+  &:hover {
+    width: 100px;
+  }
+} 
+
+/* .plsidebar {
+flex: 0 0 220px; 
   width: 30px;
   
 
@@ -49,4 +58,4 @@
       color: #ffffff;
     }
   }
-}
+} */
