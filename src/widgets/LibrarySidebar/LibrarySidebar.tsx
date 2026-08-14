@@ -1,8 +1,11 @@
-import { useEffect, type FC } from "react";
+import { useEffect, useMemo, type FC } from "react";
 import { PanelLeftClose, Plus, Maximize2, Minimize2 } from "lucide-react";
-import { useAccessToken } from "../../shared/hooks/UseAccessToken";
+// import { useAccessToken } from "../../shared/hooks/UseAccessToken";
 import { Button } from "../../shared/UI/Button";
 import styles from "./LibrarySidebar.module.css";
+import { useLoadPlaylist } from "../../shared/hooks/UseLoadPlaylist";
+import { LibraryPlaylists } from "../../shared/LibraryPlaylists";
+import { getLibraryPlaylists } from "../../shared/utils/GetLibraryPlaylists";
 
 const LIBRARY_URIS = ["spotify:playlist", "spotify:album", "spotify:artist"];
 
@@ -14,29 +17,19 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
   isExpanded = false,
   onResize,
 }) => {
-  const token = useAccessToken();
+  const{loadLibraryContent, isLoading, playlists} = useLoadPlaylist();
 
-  const loadLibraryContent = async () => {
-    // const responce = await fetch(`https://api.spotify.com/v1/me/library/contains?uris=${LIBRARY_URIS.join(',')}`, {
-    // const responce = await fetch(`https://api.spotify.com/v1/users/smedjan/playlists`, {
-    const responce = await fetch(
-      `https://api.spotify.com/v1/users/me/playlists`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    const data = await responce.json();
-    console.log(data);
-  };
+  const libraryList = useMemo(() => {
+    return getLibraryPlaylists(playlists)
+  }, [playlists])
+
 
   // const handleSwitchSidebarSize = () => {
   //   onResize();
   // };
 
   useEffect(() => {
-    // loadLibraryContent();
+    void loadLibraryContent();
   }, []);
 
   // function handleSwitchSidebarSize(): void {
@@ -66,6 +59,12 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
             {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </Button>
         </div>
+      </div>
+      <div className={styles.listContainer}>
+        {
+          isLoading ? (<span className={styles.loader}>Loading...</span> ) : (
+            <LibraryPlaylists list={libraryList} />
+        )}
       </div>
     </div>
   );

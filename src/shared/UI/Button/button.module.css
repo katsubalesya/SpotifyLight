@@ -68,3 +68,13 @@
 .fullWidth {
   width: 100%;
 }
+
+/* Кнопка Icon */
+.icon {
+  background-color: transparent;
+  color: var(--text-subdued);
+}
+
+.icon:hover {
+  background-color: var(--text-base);
+}
