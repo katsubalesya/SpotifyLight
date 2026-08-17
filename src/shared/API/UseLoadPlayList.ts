@@ -1,5 +1,4 @@
-import { useAccessToken } from "../hooks/UseAccessToken";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { makeRequest } from "./MakeRequest";
 
 export interface IPlaylistResponse {
@@ -37,22 +36,32 @@ interface ILoadPlaylistsResponse {
 export const useLoadPlaylist = () => {
   const [playlists, setPlaylists] = useState<IPlaylistResponse[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const token = useAccessToken();
+  const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
-    if (!token) return;
-
+  const load = useCallback(async () => {
     setLoading(true);
-    const response: ILoadPlaylistsResponse = await makeRequest(
-      "https://api.spotify.com/v1/me/playlists",
-    );
-    setLoading(false);
-    setPlaylists(response.items);
-  };
+    setError(null);
+
+    try {
+      const response = await makeRequest<ILoadPlaylistsResponse>(
+        "/me/playlists",
+      );
+      setPlaylists(response.items ?? []);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to load playlists";
+      console.error("Failed to load playlists:", message);
+      setError(message);
+      setPlaylists([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return {
     load,
     playlists,
     isLoading,
+    error,
   };
 };

@@ -1,12 +1,9 @@
-const ACCESS_TOKEN = 'access_token'
+import { getAccessToken, isUserAuthenticated } from "../API/SpotifyAuth";
 
 export const useAccessToken = () => {
-    let accessToken = null;
-    try {
-        accessToken = localStorage.getItem(ACCESS_TOKEN)
-    } catch (e) {
-        console.error("Couldn't extract the token from LS", e)
-    }
+  if (!isUserAuthenticated()) {
+    return null;
+  }
 
-    return accessToken;
-}
+  return getAccessToken();
+};
