@@ -1,12 +1,4 @@
-export const makeRequest = async (url: string, options?: RequestInit) => {
-    const token = getFromLS();
-  const response = await axios[options?.method](url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          ...options.headers
-        },
-        ...options
-        });
+import { spotifyFetch } from "./SpotifyApi";
 
-  return response.data;
-};
+export const makeRequest = async <T>(path: string, options?: RequestInit) =>
+  spotifyFetch<T>(path, options);

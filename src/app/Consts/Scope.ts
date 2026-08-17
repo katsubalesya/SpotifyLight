@@ -6,5 +6,5 @@ export const SCOPES_FOR_API = [
     "user-library-modify",
     "user-library-read",
     "user-read-private",
-    "user-read-email"
+    "user-read-email",
 ];

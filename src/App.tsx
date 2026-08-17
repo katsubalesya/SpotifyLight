@@ -1,10 +1,19 @@
 
+import { useEffect } from "react";
 import { Router} from "./app/Router/Router";
+
+// FYI: комментарии если нужны - сноси
+// naiming папочек (img, logo). Давай с большой буквы оставим только папки react-components. Пример: albumPage / album-page. AlbumPage
+// 
 
 // import { useEffect } from "react";
 // import { Button } from "./shared/UI/Button";
 
 function App() {
+
+  useEffect(() => {
+    console.log('render App')
+  }, [])
   // const [count, setCount] = useState(0)
 
   // const getAccessToken = async () => {

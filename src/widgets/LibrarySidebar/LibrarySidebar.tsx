@@ -3,7 +3,7 @@ import { PanelLeftClose, Plus, Maximize2, Minimize2 } from "lucide-react";
 // import { useAccessToken } from "../../shared/hooks/UseAccessToken";
 import { Button } from "../../shared/UI/Button";
 import styles from "./LibrarySidebar.module.css";
-import { useLoadPlaylist } from "../../shared/hooks/UseLoadPlaylist";
+import { useLoadPlaylist } from "../../shared/API/UseLoadPlayList";
 import { LibraryPlaylists } from "../../shared/LibraryPlaylists";
 import { getLibraryPlaylists } from "../../shared/utils/GetLibraryPlaylists";
 
@@ -17,7 +17,7 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
   isExpanded = false,
   onResize,
 }) => {
-  const{loadLibraryContent, isLoading, playlists} = useLoadPlaylist();
+  const { load, isLoading, playlists } = useLoadPlaylist();
 
   const libraryList = useMemo(() => {
     return getLibraryPlaylists(playlists)
@@ -29,8 +29,8 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
   // };
 
   useEffect(() => {
-    void loadLibraryContent();
-  }, []);
+    void load();
+  }, [load]);
 
   // function handleSwitchSidebarSize(): void {
   //   throw new Error("Function not implemented.");

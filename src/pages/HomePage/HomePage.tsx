@@ -1,36 +1,38 @@
-import { useEffect, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 import styles from "./HomePage.module.css";
-import { useAccessToken } from "../../shared/hooks/UseAccessToken";
+import { spotifyFetch } from "../../shared/API/SpotifyApi";
+
+type SpotifyUser = {
+  display_name: string;
+  id: string;
+};
 
 const HomePage: FC = () => {
-  const token = useAccessToken();
+  const [userName, setUserName] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return;
-    loadUserData();
-  }, [token]);
+    const loadUserData = async () => {
+      try {
+        const data = await spotifyFetch<SpotifyUser>("/me");
+        setUserName(data.display_name);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to load user";
+        console.error("Failed to load user:", message);
+        setError(message);
+      }
+    };
 
-  const loadUserData = async () => {
-    if (!token) return;
-    
-    const responce = await fetch("https://api.spotify.com/v1/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!responce.ok) {
-      console.error("Failed to load user");
-      return;
-    }
-    const data = await responce.json();
-    console.log(data, "data");
-  };
+    loadUserData();
+  }, []);
 
   return (
     <section className={styles.home}>
-      <h1>Good afternoon</h1>
+      <h1>Good afternoon{userName ? `, ${userName}` : ""}</h1>
 
       <p>Discover your favorite music.</p>
+      {error && <p role="alert">{error}</p>}
     </section>
   );
 };
