@@ -18,6 +18,7 @@ export const Button: FC<IButtonProps> = ({
   fullWidth = false,
   onClick,
   className = "",
+  
 }) => {
      const buttonClassName = [
     styles.button,

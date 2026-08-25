@@ -1,0 +1,179 @@
+.row {
+  display: grid;
+  grid-template-columns: 50px minmax(220px, 2fr) minmax(160px, 1fr) 52px 36px;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--text-subdued);
+  font-size: 14px;
+  /* transition: background-color 0.15s ease; */
+}
+
+.row:hover {
+  background-color: var(--bg-card-hover);
+}
+
+.number {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* color: var(--text-subdued); */
+  /* font-size: 14px; */
+}
+
+.trackNumber{
+  display: block;
+}
+
+.icon{
+  display: none;
+}
+
+/* Навели мышкой на всю строку */
+.row:hover .trackNumber {
+  display: none;
+}
+
+.row:hover .icon {
+  display: flex;
+}
+
+/* .playButton {
+  position: absolute;
+  display: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+} */
+
+/* .row:hover .number > span {
+  opacity: 0;
+}
+
+.row:hover .playButton {
+  display: grid;
+} */
+
+/* .playButton:hover {
+  transform: scale(1.08);
+} */
+
+.trackInfo {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+
+.cover,
+.coverPlaceholder {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 4px;
+}
+
+.cover {
+  display: block;
+  object-fit: cover;
+}
+
+.coverPlaceholder {
+  display: grid;
+  place-items: center;
+  background: var(--bg-hightlight);
+  color: var(--text-subdued);;
+  font-size: 20px;
+}
+
+.text {
+  min-width: 0;
+}
+
+.title,
+.titlePlaying,
+.artists,
+.album {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.title,
+.titlePlaying {
+  color: var(--text-base);
+  font-size: 15px;
+}
+
+.titlePlaying {
+  color: var(--brand-success-hover);
+}
+
+.artists {
+  margin-top: 4px;
+  color: var(--text-subdued);;
+  font-size: 13px;
+}
+
+.album {
+  font-size: 14px;
+}
+
+.duration {
+  font-size: 14px;
+  text-align: right;
+}
+
+/* .moreButton {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-subdued);;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.row:hover .moreButton {
+  opacity: 1;
+}
+
+.moreButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.playButton:focus-visible,
+.moreButton:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+} */
+
+@media (max-width: 700px) {
+  .row {
+    grid-template-columns: 36px minmax(0, 1fr) 44px 32px;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .album {
+    display: none;
+  }
+
+  /* .moreButton {
+    opacity: 1;
+  } */
+}

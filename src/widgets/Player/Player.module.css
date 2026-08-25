@@ -45,12 +45,15 @@
   border-radius: 4px;
 
   font-size: 24px;
+  object-fit: cover;
 
   @media (max-width: 768px) {
     width: 48px;
     height: 48px;
   }
 }
+
+.trackText { min-width: 0; }
 
 .title,
 .artist {
@@ -105,6 +108,8 @@
 
     cursor: pointer;
   }
+
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
 }
 
 .play {
@@ -132,6 +137,8 @@
     flex: 1;
   }
 }
+
+.notice { color: #b3b3b3; font-size: 10px; }
 
 .volume {
   display: flex;

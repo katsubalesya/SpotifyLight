@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Header } from "../../Header/Header";
-import { LibrarySidebar } from "../../LibrarySidebar/LibrarySidebar";
-import { PlayerSidebar } from "../../PlayerSidebar/PlayerSidebar";
-import { Player } from "../../Player/Player";
+import { Header } from "../../header/header";
+import { LibrarySidebar } from "../../librarySidebar/librarySidebar";
+import { PlayerSidebar } from "../../playerSidebar/playerSidebar";
+import { Player } from "../../Player/player";
 import styles from "./MainLayout.module.css";
 
 // export const MainLayout: FC<PropsWithChildren> = ({children}) => {

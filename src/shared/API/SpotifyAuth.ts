@@ -1,4 +1,4 @@
-import { SCOPES_FOR_API } from "../../app/Consts/Scope";
+import { SCOPES_FOR_API } from "../../app/consts/scope";
 import {
   ACCESS_TOKEN_KEY,
   CODE_VERIFIER_KEY,
@@ -7,7 +7,7 @@ import {
   SPOTIFY_CLIENT_ID,
   SPOTIFY_REDIRECT_URI,
   SPOTIFY_TOKEN_URL,
-} from "../../app/Consts/Spotify";
+} from "../../app/consts/spotify";
 import { generateCodeChallenge, generateCodeVerifier } from "../utils/pkce";
 
 export type SpotifyTokenResponse = {

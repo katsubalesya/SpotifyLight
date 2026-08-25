@@ -1,1 +1,1 @@
-import { PlayerSidebar } from "./PlayerSidebar";
+export { PlayerSidebar } from "./playerSidebar";

@@ -1,13 +1,15 @@
 // import styles from "./PlayListPage.module.css";
+// это ,промежуточная страница, на которую Spotify возвращает пользователя после входа
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { exchangeCodeForToken } from "../../shared/API/SpotifyAuth";
+import { exchangeCodeForToken } from "../../shared/API/spotifyAuth";
 
 const CallbackPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const hasStartedAuthorization = useRef(false);
 
   useEffect(() => {
     const code = searchParams.get("code");
@@ -23,6 +25,12 @@ const CallbackPage = () => {
       navigate("/login", { replace: true });
       return;
     }
+
+    if (hasStartedAuthorization.current) {
+      return;
+    }
+
+    hasStartedAuthorization.current = true;
 
     const authorize = async () => {
       try {

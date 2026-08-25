@@ -1,0 +1,24 @@
+.page {
+  min-height: 100%;
+  padding-bottom: 120px;
+  background: var(--bg-hightlight);
+}
+
+.content {
+  padding: 28px 24px;
+}
+
+.state {
+  display: grid;
+  min-height: 60vh;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg-hightlight);
+  color: var(--text-subdued);
+}
+
+@media (max-width: 700px) {
+  .content {
+    padding: 20px 12px 100px;
+  }
+}

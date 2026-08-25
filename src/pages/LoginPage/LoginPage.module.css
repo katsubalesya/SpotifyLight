@@ -1,0 +1,9 @@
+.container {
+
+  display: grid;
+  place-items: center;
+  min-height: 60dvh;
+  overflow: hidden;
+  padding: 24px;
+
+}
