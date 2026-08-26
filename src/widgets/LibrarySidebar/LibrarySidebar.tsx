@@ -4,15 +4,8 @@ import { PanelLeftClose, Plus, Maximize2, Minimize2, List } from "lucide-react";
 import { Button } from "../../shared/UI/Button";
 import styles from "./LibrarySidebar.module.css";
 
-// import { useAccessToken } from "../../entities/hooks/useAccessToken";
-// import { useLoadPlaylist } from "../../entities/playlists/api/UseLoadPlaylist";
-import { LibraryList, type ILibraryItem } from "../../entities/playlists/ui";
-// import { getLibraryPlaylists } from "../../entities/playlists/api/GetLibraryPlaylists";
-// import { useLoadArtists } from "../../entities/artist/api/useLoadArtists";
-// import { useLoadRecentlyPlayed } from "../../entities/track/api/useLoadRecentPlayed";
+import { LibraryList, type LibraryItem } from "../../entities/playlists/ui";
 import { RecentTrackList } from "../../entities/track/ui/recentTrackList";
-// import { useLoadAlbums } from "../../entities/album/api/useLoadAlbums";
-// import { useLoadPodcasts } from "../../entities/podcast/api/useLoadPodcasts";
 import { useLibrary } from "../../entities/library/model/useLibrary";
 
 type LibraryVariant =
@@ -22,12 +15,12 @@ type LibraryVariant =
   | "podcasts"
   | "recents";
 
-interface ILibrarySidebarProps {
+interface LibrarySidebarProps {
   isExpanded?: boolean;
   onResize: () => void;
 }
 
-export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
+export const LibrarySidebar: FC<LibrarySidebarProps> = ({
   isExpanded = false,
   onResize,
 }) => {
@@ -37,6 +30,7 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
     useState<LibraryVariant>("playlists");
 
   // const [isRecentsOpen, setIsRecentsOpen] = useState(false);
+const [isCreating, setIsCreating] = useState(false);
 
   const {
     playlists,
@@ -47,6 +41,7 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
     isLoading,
     error,
     loadLibrary,
+    createPlaylist,
   } = useLibrary();
 
   // const libraryList = useMemo(() => {
@@ -71,7 +66,37 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
   //   }
   // };
 
-  const handleCreatePlayList = async () => {};
+const handleCreatePlaylist = async () => {
+  const enteredName = window.prompt("Enter playlist name");
+
+  if (enteredName === null) {
+    return;
+  }
+
+  const playlistName = enteredName.trim();
+
+  if (!playlistName) {
+    window.alert("Playlist name cannot be empty");
+    return;
+  }
+
+  try {
+    setIsCreating(true);
+
+    await createPlaylist(playlistName);
+
+    setActiveVariant("playlists");
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to create playlist";
+
+    window.alert(message);
+  } finally {
+    setIsCreating(false);
+  }
+};
 
   const handleRecents = () => {
     setActiveVariant("recents");
@@ -94,7 +119,7 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
       case "playlists":
         return (
           <LibraryList
-            items={playlists.map<ILibraryItem>((playlist) => ({
+            items={playlists.map<LibraryItem>((playlist) => ({
               id: playlist.id,
               type: "playlist",
               title: playlist.name,
@@ -109,7 +134,7 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
       case "artists":
         return (
           <LibraryList
-            items={artists.map<ILibraryItem>((artist) => ({
+            items={artists.map<LibraryItem>((artist) => ({
               id: artist.id,
               type: "artist",
               title: artist.name,
@@ -124,7 +149,7 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
       case "albums":
         return (
           <LibraryList
-            items={albums.map<ILibraryItem>((album) => ({
+            items={albums.map<LibraryItem>((album) => ({
               id: album.id,
               type: "album",
               title: album.name,
@@ -139,7 +164,7 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
       case "podcasts":
         return (
           <LibraryList
-            items={podcasts.map<ILibraryItem>((podcast) => ({
+            items={podcasts.map<LibraryItem>((podcast) => ({
               id: podcast.id,
               type: "podcast",
               title: podcast.name,
@@ -178,8 +203,8 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
           <span>Your Library</span>
         </div>
         <div className={styles.headerRight}>
-          <Button variant="ghost" onClick={handleCreatePlayList}>
-            <Plus />
+          <Button variant="ghost" onClick={handleCreatePlaylist} disabled={isCreating}>
+            <Plus size={18}/>
             Create
           </Button>
 
@@ -191,21 +216,24 @@ export const LibrarySidebar: FC<ILibrarySidebarProps> = ({
 
       <div className={styles.variants}>
         <Button
-          variant="ghost"
+          variant={activeVariant === "playlists" ? "secondary" : "ghost"}
           onClick={() => handleVariantChange("playlists")}
         >
           Playlists
         </Button>
 
-        <Button variant="ghost" onClick={() => handleVariantChange("artists")}>
+        <Button
+          variant={activeVariant === "artists" ? "secondary" : "ghost"}
+          onClick={() => setActiveVariant("artists")}
+        >
           Artists
         </Button>
 
-        <Button variant="ghost" onClick={() => handleVariantChange("albums")}>
+        <Button variant={activeVariant === "albums" ? "secondary" : "ghost"} onClick={() => handleVariantChange("albums")}>
           Albums
         </Button>
 
-        <Button variant="ghost" onClick={() => handleVariantChange("podcasts")}>
+        <Button variant={activeVariant === "podcasts" ? "secondary" : "ghost"} onClick={() => handleVariantChange("podcasts")}>
           Podcasts
         </Button>
       </div>

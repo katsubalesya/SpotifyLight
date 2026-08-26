@@ -62,3 +62,9 @@ export interface LoadPlaylistsResponse {
   previous: string | null;
   total: number;
 }
+
+export interface CreatePlaylistData {
+  name: string;
+  description?: string;
+  public?: boolean;
+}

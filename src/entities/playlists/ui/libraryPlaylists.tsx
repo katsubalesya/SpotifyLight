@@ -5,7 +5,7 @@ import styles from "./LibraryPlaylists.module.css";
 
 export type LibraryItemType = "playlist" | "artist" | "album" | "podcast";
 
-export interface ILibraryItem {
+export interface LibraryItem {
   id: string;
   type: LibraryItemType;
   title: string;
@@ -15,13 +15,13 @@ export interface ILibraryItem {
   externalUrl?: string;
 }
 
-interface ILibraryListProps {
-  items: ILibraryItem[];
+interface LibraryListProps {
+  items: LibraryItem[];
   emptyMessage: string;
 }
 
 /** A shared library list for playlists, artists, albums and podcasts. */
-export const LibraryList: FC<ILibraryListProps> = ({ items, emptyMessage }) => {
+export const LibraryList: FC<LibraryListProps> = ({ items, emptyMessage }) => {
   const { pathname } = useLocation();
 
   if (items.length === 0) {

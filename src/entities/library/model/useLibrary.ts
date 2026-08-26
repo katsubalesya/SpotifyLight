@@ -16,6 +16,7 @@ import { spotifyFetch } from "../../../shared/API/fetchRequest";
 import type { SpotifyPlaylistsResponse } from "../../playlists/api/types";
 import { mapSpotifyPlaylists } from "../../playlists/model/mapSpotifyPlaylists";
 import { useAccessToken } from "../../hooks/useAccessToken";
+import { createPlaylist as createPlaylistRequest } from "../../playlists/api/createPlaylist";
 
 export const useLibrary = () => {
   const token = useAccessToken();
@@ -28,6 +29,27 @@ export const useLibrary = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const createPlaylist = useCallback(
+    async (name: string) => {
+      if (!token) {
+        throw new Error("The user is not authorized");
+      }
+
+      const createdPlaylist = await createPlaylistRequest({
+        name,
+        description: "Created in SpLight",
+        public: false,
+      });
+
+      const [newPlaylist] = mapSpotifyPlaylists([createdPlaylist]);
+
+      setPlaylists((currentPlaylists) => [newPlaylist, ...currentPlaylists]);
+
+      return newPlaylist;
+    },
+    [token],
+  );
 
   const loadLibrary = useCallback(async () => {
     if (!token) {
@@ -101,5 +123,6 @@ export const useLibrary = () => {
     isLoading,
     error,
     loadLibrary,
+    createPlaylist,
   };
 };
