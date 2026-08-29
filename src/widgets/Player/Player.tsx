@@ -7,7 +7,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import { usePlayer } from "./playerContext";
-import styles from "./Player.module.css";
+import styles from "./player.module.css";
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -39,10 +39,10 @@ export const Player = () => {
         )}
         <div className={styles.trackText}>
           <p className={styles.title}>
-            {currentTrack?.title ?? "Трек не выбран"}
+            {currentTrack?.title ?? "Track not selected"}
           </p>
           <p className={styles.artist}>
-            {currentTrack?.artists.join(", ") ?? "Выберите композицию в списке"}
+            {currentTrack?.artists.join(", ") ?? "Select a composition from the list"}
           </p>
         </div>
       </div>
@@ -52,7 +52,7 @@ export const Player = () => {
           <button
             onClick={playPrevious}
             disabled={!currentTrack}
-            aria-label="Предыдущий трек"
+            aria-label="Previous track"
           >
             <SkipBack size={20} />
           </button>
@@ -60,7 +60,7 @@ export const Player = () => {
             className={styles.play}
             onClick={togglePlay}
             disabled={!currentTrack}
-            aria-label={isPlaying ? "Пауза" : "Воспроизвести"}
+            aria-label={isPlaying ? "Pause": "Play"}
           >
             {isPlaying ? (
               <Pause size={20} fill="currentColor" />
@@ -71,7 +71,7 @@ export const Player = () => {
           <button
             onClick={playNext}
             disabled={!currentTrack}
-            aria-label="Следующий трек"
+            aria-label="Next track"
           >
             <SkipForward size={20} />
           </button>
@@ -87,12 +87,12 @@ export const Player = () => {
             value={Math.min(progress, duration || 1)}
             onChange={(event) => seek(Number(event.target.value))}
             disabled={!hasAudio}
-            aria-label="Позиция воспроизведения"
+            aria-label="Playback position"
           />
           <span>{formatTime(duration)}</span>
         </div>
         {currentTrack && !hasAudio && (
-          <span className={styles.notice}>Аудиопревью недоступно</span>
+          <span className={styles.notice}>Audio preview is unavailable</span>
         )}
       </div>
 
@@ -105,7 +105,7 @@ export const Player = () => {
           step="0.01"
           value={volume}
           onChange={(event) => setVolume(Number(event.target.value))}
-          aria-label="Громкость"
+          aria-label="Volume"
         />
       </div>
     </footer>

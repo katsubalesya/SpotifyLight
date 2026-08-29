@@ -1,11 +1,11 @@
 import { Heart, Music2, Pause, Play } from "lucide-react";
 import type { FC, ReactNode } from "react";
 import { Button } from "../../shared/UI/Button";
-import styles from "./PageHeader.module.css";
+import styles from "./pageHeader.module.css";
 
 type PageHeaderType = "playlist" | "artist" | "album" | "podcast";
 
-interface IPageHeaderProps {
+interface PageHeaderProps {
   type: PageHeaderType;
   title: string;
   imageUrl?: string | null;
@@ -25,7 +25,7 @@ const typeLabels: Record<PageHeaderType, string> = {
   podcast: "Podcast",
 };
 
-export const PageHeader: FC<IPageHeaderProps> = ({
+export const PageHeader: FC<PageHeaderProps> = ({
   type,
   title,
   imageUrl,

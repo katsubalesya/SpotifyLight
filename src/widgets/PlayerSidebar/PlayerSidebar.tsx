@@ -1,4 +1,4 @@
-import styles from "./PlayerSidebar.module.css";
+import styles from "./playerSidebar.module.css";
 
 export const PlayerSidebar = () => {
   return (

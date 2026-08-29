@@ -1,17 +1,20 @@
 import type { FC } from "react";
-import { TrackRow} from "../../trackrow/ui/trackRow";
-import type { ITrackRow } from "../../trackrow/model/types";
-import styles from "./TrackList.module.css";
+// import { TrackRow} from "../../trackrow/ui/trackRow";
+// import type { TrackRow } from "../../trackrow/model/types";
 
-interface ITrackListProps {
-  tracks: ITrackRow[];
+import { TrackRow } from "../../trackrow/ui/trackRow";
+import type { TrackRow as TrackRowData } from "../../trackrow/model/types";
+import styles from "./trackList.module.css";
+
+interface TrackListProps {
+  tracks: TrackRowData[];
   currentTrackId?: string;
-  onTrackPlay?: (track: ITrackRow) => void;
-  onTrackMoreClick?: (track: ITrackRow) => void;
+  onTrackPlay?: (track: TrackRowData) => void;
+  onTrackMoreClick?: (track: TrackRowData) => void;
   emptyMessage?: string;
 }
 
-export const TrackList: FC<ITrackListProps> = ({
+export const TrackList: FC<TrackListProps> = ({
   tracks,
   currentTrackId,
   onTrackPlay,

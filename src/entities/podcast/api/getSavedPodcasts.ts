@@ -18,7 +18,7 @@ export const getSavedPodcasts = async (): Promise<IPodcast[]> => {
     uri: item.show.uri,
     externalUrl: item.show.external_urls.spotify,
     imageUrl: item.show.images[0]?.url ?? null,
-    publisher: item.show.publisher,
+    publisher: item.show.publisher ?? "Podcast",
     description: item.show.description,
     totalEpisodes: item.show.total_episodes,
   }))

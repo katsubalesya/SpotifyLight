@@ -2,16 +2,13 @@
   position: sticky;
   top: 0;
   z-index: 10;
-
-  height: 72px;
-
+  height: var(--header-height);
   display: flex;
   align-items: center;
-
   padding: 0 32px;
 
-  background-color: #181818;
-  border-bottom: 1px solid #282828;
+  background-color: var(--bg-base);
+  border-bottom: 1px solid var(--bg-card);
 
   @media (max-width: 768px) {
     padding: 0 16px;
@@ -22,13 +19,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
   width: 220px;
-
   color: var(--text-base);
   text-decoration: none;
   cursor: pointer;
-
   font-size: 26px;
   font-weight: 700;
 
@@ -42,65 +36,26 @@
 }
 
 .search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
+  margin-left: auto;
   width: min(500px, 50%);
 
-  padding: 12px 18px;
-
-  background-color: #242424;
-  border-radius: 24px;
-
-  color: var(--text-subdued);
-
   @media (max-width: 768px) {
-    margin-left: auto;
-
-    width: 40px;
-    padding: 10px;
-  }
-
-  input {
-    width: 100%;
-
-    border: none;
-    outline: none;
-
-    background: transparent;
-
-    color: var(--text-base);
-    font-size: 14px;
-
-    @media (max-width: 768px) {
-    display: none;
-  }
-
-    &::placeholder {
-      color: #b3b3b3;
-    }
+    width: min(220px, 55%);
   }
 }
 
 .profile {
   margin-left: auto;
-
   display: flex;
   align-items: center;
   gap: 8px;
-
   padding: 10px 16px;
-
   border: none;
   border-radius: 20px;
 
-  background-color: #242424;
-  color: #ffffff;
-
+  background-color: var(--bg-base);
+  color: var(--text-base);
   cursor: pointer;
-
-  
 }
 
 .profile span {

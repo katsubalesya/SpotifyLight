@@ -1,0 +1,113 @@
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  color: var(--text-subdued);
+  background-color: var(--bg-card-hover);
+
+  border: 1px solid transparent;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.search:hover {
+  background-color: #2a2a2a;
+}
+
+.search:focus-within {
+  border-color: var(--text-base);
+}
+
+/* Поиск Spotify в Header */
+.global {
+  max-width: 500px;
+  padding: 10px 14px;
+  border-radius: 999px;
+}
+
+/* Поиск по загруженной Library */
+.library {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background-color: var(--bg-highlight);
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+
+  color: var(--text-base);
+  background-color: transparent;
+
+  border: none;
+  outline: none;
+
+  font: inherit;
+  font-size: 14px;
+}
+
+.input::placeholder {
+  color: var(--text-subdued);
+}
+
+/* Убираем стандартный крестик у input type="search" */
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.searchIcon {
+  flex-shrink: 0;
+}
+
+.clearButton {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  padding: 0;
+
+  color: var(--text-subdued);
+  background-color: transparent;
+
+  border: none;
+  cursor: pointer;
+}
+
+.clearButton:hover {
+  color: var(--text-base);
+}
+
+.clearButton:focus-visible {
+  color: var(--text-base);
+  outline: 2px solid var(--text-base);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+
+.visuallyHidden {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .global {
+    max-width: 220px;
+  }
+}

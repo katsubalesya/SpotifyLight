@@ -1,24 +1,109 @@
-.page {
-  min-height: 100%;
-  padding-bottom: 120px;
-  background: #121212;
-}
-
-.content {
-  padding: 28px 24px;
-}
-
 .state {
   display: grid;
   min-height: 60vh;
   place-items: center;
   padding: 24px;
-  background: #121212;
-  color: #b3b3b3;
+  background: var(--bg-card);
+  color: var(--text-subdued);
+}
+.actionError {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+
+  border: 1px solid #e35d6a;
+  border-radius: var(--radius-md);
+
+  background: rgba(227, 93, 106, 0.1);
+  color: #ffb3ba;
 }
 
-@media (max-width: 700px) {
-  .content {
-    padding: 20px 12px 100px;
+.releases h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.empty {
+  color: var(--text-subdued);
+}
+
+.albumGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 20px;
+}
+
+.albumCard {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+
+  border-radius: var(--radius-md);
+
+  background: var(--bg-card);
+  color: var(--text-base);
+  text-decoration: none;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.albumCard:hover {
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+}
+
+.albumCard:focus-visible {
+  outline: 2px solid var(--brand-success);
+  outline-offset: 3px;
+}
+
+.albumCover,
+.albumPlaceholder {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+}
+
+.albumCover {
+  display: block;
+  object-fit: cover;
+}
+
+.albumPlaceholder {
+  display: grid;
+  place-items: center;
+
+  background: #282828;
+  color: var(--text-subdued);
+  font-size: 40px;
+}
+
+.albumTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.albumMeta {
+  overflow: hidden;
+
+  color: var(--text-subdued);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+   .albumGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .albumCard {
+    padding: 10px;
   }
 }

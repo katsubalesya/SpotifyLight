@@ -1,145 +1,201 @@
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
-import { useAccessToken } from "../../entities/hooks/useAccessToken";
-import { TrackList } from "../../entities/trackList/ui/trackList";
-import type { ITrackRow } from "../../entities/trackrow/model/types";
 import { PageHeader } from "../../entities/pageHeader/pageHeader";
-import { usePlayer } from "../../widgets/Player/playerContext";
+import { spotifyFetch } from "../../shared/API/fetchRequest";
+import type { SpotifyArtist, SpotifyArtistAlbumsResponse, SpotifySimplifiedAlbum} from "../../shared/API/typesCommon";
+import { PageContainer } from "../../shared/UI/pageContainer";
 
 import styles from "./ArtistPage.module.css";
-import type { SpotifyArtist, SpotifyTrack } from "../../shared/API/typesCommon";
-import { spotifyFetch } from "../../shared/API/fetchRequest";
-
-interface SpotifyTopTracksResponse {
-  tracks: SpotifyTrack[];
-}
 
 const ArtistPage = () => {
   const { artistId } = useParams<{ artistId: string }>();
-  const token = useAccessToken();
 
   const [artist, setArtist] = useState<SpotifyArtist | null>(null);
-  const [artistTracks, setArtistTracks] = useState<SpotifyTrack[]>([]);
-  // const [tracksData, setTracksData] = useState<SpotifyTrack[]>([]);
+  const [albums, setAlbums] = useState<SpotifySimplifiedAlbum[]>([]);
+  const [albumsTotal, setAlbumsTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
   const [isSaved, setIsSaved] = useState(false);
-  const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayer();
 
   useEffect(() => {
-    if (!artistId || !token) {
+    if (!artistId ) {
       setError("Failed to retrieve artist data.");
       setIsLoading(false);
       return;
     }
+    const controller = new AbortController();
 
     const loadArtist = async () => {
       try {
         setIsLoading(true);
         setError("");
+        setActionError("");
 
-        const [artistData, tracksData, savedData] = await Promise.all([
-          spotifyFetch<SpotifyArtist>(`/artists/${artistId}`),
-          spotifyFetch<SpotifyTopTracksResponse>(
-            `/artists/${artistId}/top-tracks?market=PL`,
-          ),
-          spotifyFetch<boolean[]>(
-            `/me/following/contains?type=artist&ids=${artistId}`,
-          ),
+        const [artistData, albumsData] = await Promise.all([
+          spotifyFetch<SpotifyArtist>(`/artists/${artistId}`,{signal: controller.signal}),
+          spotifyFetch<SpotifyArtistAlbumsResponse>(`/artists/${artistId}/albums?include_groups=album,single&limit=10`, {signal:controller.signal}),
         ]);
 
         setArtist(artistData);
-        setArtistTracks(tracksData.tracks);
+        setAlbums(albumsData.items);
+        setAlbumsTotal(albumsData.total)
+
+        const artistUri = `spotify:artist:${artistId}`;
+
+       try {
+        const savedData = await spotifyFetch<boolean[]>(
+          `/me/library/contains?uris=${encodeURIComponent(artistUri)}`,
+          { signal: controller.signal },
+        );
+
         setIsSaved(savedData[0] ?? false);
-      } catch (requestError) {
-        console.error(requestError);
-        setError("Failed to load artist. Try refreshing the page.");
-      } finally {
+      } catch (savedStateError) {
+        if (
+          savedStateError instanceof DOMException &&
+          savedStateError.name === "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "Failed to check whether artist is saved:",
+          savedStateError,
+        );
+
+        setIsSaved(false);
+      }
+    } catch (requestError) {
+      if (requestError instanceof DOMException && requestError.name === "AbortError") {
+        return;
+      }
+
+      console.error("Failed to load artist:", requestError);
+
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Failed to load artist. Try refreshing the page.",
+      );
+    } finally {
+      if (!controller.signal.aborted) {
         setIsLoading(false);
       }
-    };
-
-    void loadArtist();
-  }, [artistId, token]);
-
-  const tracks = useMemo<ITrackRow[]>(() => {
-    return artistTracks.map((track) => ({
-      id: track.id,
-      title: track.name,
-      artists: track.artists.map((trackArtist) => trackArtist.name),
-      album: track.album?.name,
-      imageUrl: track.album?.images[0]?.url ?? null,
-      durationMs: track.duration_ms,
-      previewUrl: track.preview_url,
-    }));
-  }, [artistTracks]);
-
-  const handleTrackPlay = (track: ITrackRow) => {
-    playTrack(track, tracks);
+    }
   };
 
-  const handleArtistPlay = () => {
-    const firstTrack = tracks[0];
+  void loadArtist();
 
-    if (!firstTrack) return;
-
-    if (tracks.some(({ id }) => id === currentTrack?.id)) togglePlay();
-    else playTrack(firstTrack, tracks);
+  return () => {
+    controller.abort();
   };
-
-  const handleSaveArtist = async () => {
-    if (!artistId || !token) return;
+}, [artistId]);
+      
+    const handleSaveArtist = async () => {
+    if (!artistId) return;
 
     try {
-      await spotifyFetch<void>(`/me/following?type=artist&ids=${artistId}`, {
-        method: isSaved ? "DELETE" : "PUT",
-      });
+      setActionError("");
+      const artistUri = `spotify:artist:${artistId}`;
 
-      setIsSaved((value) => !value);
+      await spotifyFetch<void>(
+        `/me/library?uris=${encodeURIComponent(artistUri)}`,
+        {
+          method: isSaved ? "DELETE" : "PUT",
+        },
+      );
+
+      setIsSaved((currentValue) => !currentValue);
     } catch (requestError) {
       console.error(requestError);
+
+      setActionError(
+        requestError instanceof Error ? requestError.message : "Failed to update the artist in your library.",
+      )
     }
   };
 
   if (isLoading) {
-    return <section className={styles.state}>Загрузка artist...</section>;
+    return (<section className={styles.state} aria-live="polite">Loading artist...</section>);
   }
 
   if (error || !artist) {
-    return <section className={styles.state}>{error}</section>;
+    return (<section className={styles.state} role="alert">{error || "Artist not found."}</section>);
   }
 
   return (
-    <section className={styles.page}>
+    <PageContainer>
       <PageHeader
         type="artist"
         title={artist.name}
         imageUrl={artist.images[0]?.url}
-        description={
-          artist.genres.length > 0 ? artist.genres.join(", ") : undefined
-        }
-        meta={[`${artist.popularity} folovers`, `${tracks.length} tracks`]}
-        isPlaying={
-          isPlaying && tracks.some(({ id }) => id === currentTrack?.id)
-        }
+        // description={
+        //   artist.genres?.length ? artist.genres.join(", ") : undefined
+        // }
+        meta={[`${albumsTotal} releases`]}
+        // isPlaying={
+        //   isPlaying && tracks.some(({ id }) => id === currentTrack?.id)
+        // }
         isSaved={isSaved}
-        onPlay={handleArtistPlay}
+        // onPlay={handleArtistPlay}
         onSave={handleSaveArtist}
       />
 
-      <div className={styles.content}>
-        <TrackList
-          tracks={tracks}
-          currentTrackId={isPlaying ? currentTrack?.id : undefined}
-          onTrackPlay={handleTrackPlay}
-          onTrackMoreClick={(track) => {
-            console.log("Open track menu:", track.title);
-          }}
-          emptyMessage="There are no tracks in this album yet."
-        />
-      </div>
-    </section>
+      <PageContainer.Content>
+        {actionError && (
+          <p className={styles.actionError} role="alert">
+            {actionError}
+          </p>
+        )}
+
+        <section
+          className={styles.releases}
+          aria-labelledby="artist-releases-title"
+        >
+          <h2 id="artist-releases-title">Releases</h2>
+
+          {albums.length === 0 ? (
+            <p className={styles.empty}>No releases found.</p>
+          ) : (
+            <div className={styles.albumGrid}>
+              {albums.map((album) => (
+                <Link
+                  key={album.id}
+                  to={`/albums/${album.id}`}
+                  className={styles.albumCard}
+                >
+                  {album.images[0]?.url ? (
+                    <img
+                      className={styles.albumCover}
+                      src={album.images[0].url}
+                      alt={`${album.name} cover`}
+                    />
+                  ) : (
+                    <div
+                      className={styles.albumPlaceholder}
+                      aria-hidden="true"
+                    >
+                      ♪
+                    </div>
+                  )}
+
+                  <strong className={styles.albumTitle}>
+                    {album.name}
+                  </strong>
+
+                  <span className={styles.albumMeta}>
+                    {album.release_date.slice(0, 4)}
+                    {" · "}
+                    {album.album_type}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      </PageContainer.Content>
+    </PageContainer>
   );
 };
 

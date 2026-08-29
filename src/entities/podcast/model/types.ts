@@ -4,7 +4,7 @@ export interface IPodcast {
   uri: string;
   externalUrl: string;
   imageUrl: string | null;
-  publisher: string;
+  publisher?: string;
   description: string;
   totalEpisodes: number;
 }

@@ -1,5 +1,3 @@
-import styles from "./PlayListPage.module.css";
-
 import { useCallback, useEffect, useMemo, useState, type FC } from "react";
 import { useParams } from "react-router-dom";
 
@@ -7,8 +5,9 @@ import { useAccessToken } from "../../entities/hooks/useAccessToken";
 import type { SpotifyPlaylistsResponse } from "../../entities/playlists/api/types";
 import { spotifyFetch } from "../../shared/API/fetchRequest";
 import { TrackList } from "../../entities/trackList/ui/trackList";
-import type { ITrackRow } from "../../entities/trackrow/model/types";
+import type { TrackRow } from "../../entities/trackrow/model/types";
 import { usePlayer } from "../../widgets/Player/playerContext";
+import { PageContainer } from "../../shared/UI/pageContainer";
 
 const PlayListPage: FC = () => {
   const token = useAccessToken();
@@ -48,32 +47,32 @@ const PlayListPage: FC = () => {
     void loadCurrentPlaylist(id);
   }, [id, loadCurrentPlaylist]);
 
-  const tracks = useMemo<ITrackRow[]>(() => {
-    if (!currentPlaylist) return [];
+  const tracks = useMemo<TrackRow[]>(() => {
+    if (!currentPlaylist?.items) return [];
 
-    return currentPlaylist.tracks.items.flatMap(({ track }) => {
-      if (!track) return [];
+    return currentPlaylist.items.items.flatMap(({ item }) => {
+      if (!item) return [];
 
       return [
         {
-          id: track.id,
-          title: track.name,
-          artists: track.artists.map((artist) => artist.name),
-          album: track.album?.name,
-          imageUrl: track.album?.images[0]?.url ?? null,
-          durationMs: track.duration_ms,
-          previewUrl: track.preview_url,
+          id: item.id,
+          title: item.name,
+          artists: item.artists.map((artist) => artist.name),
+          album: item.album?.name,
+          imageUrl: item.album?.images[0]?.url ?? null,
+          durationMs: item.duration_ms,
+          previewUrl: item.preview_url,
         },
       ];
     });
   }, [currentPlaylist]);
 
-  const handleTrackPlay = (track: ITrackRow) => {
+  const handleTrackPlay = (track: TrackRow) => {
     playTrack(track, tracks);
   };
 
   return (
-    <section>
+    <PageContainer>
       {loading && <div>Loading...</div>}
       {error && <div>{error}</div>}
       <h1>{currentPlaylist?.name}</h1>
@@ -84,9 +83,9 @@ const PlayListPage: FC = () => {
       />
       <p>{currentPlaylist?.description}</p>
       <p>Owner: {currentPlaylist?.owner?.display_name}</p>
-      <p>Tracks: {currentPlaylist?.tracks?.total}</p>
+      <p>Tracks: {currentPlaylist?.items?.total ?? 0}</p>
 
-      <div className={styles.content}>
+      <PageContainer.Content>
         <TrackList
           tracks={tracks}
           currentTrackId={isPlaying ? currentTrack?.id : undefined}
@@ -96,7 +95,7 @@ const PlayListPage: FC = () => {
           }}
           emptyMessage="There are no tracks in this playlist yet."
         />
-      </div>
+      </PageContainer.Content>
 
       {/* Список в доработке*/}
       {/* {currentPlaylist?.tracks?.items?.map(({ track }: any) => (
@@ -105,7 +104,7 @@ const PlayListPage: FC = () => {
           {track.artists.map((artist: any) => artist.name).join(", ")}
         </div>
       ))} * */}
-    </section>
+    </PageContainer>
   );
 };
 

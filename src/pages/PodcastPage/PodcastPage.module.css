@@ -1,20 +1,4 @@
-.page {
-  min-height: 100%;
-  padding-bottom: 120px;
-  background: var(--bg-base);
-}
-
-.content {
-  padding: 28px 24px;
-}
-
 .heading {
   margin: 0 0 20px;
   font-size: 24px;
-}
-
-@media (max-width: 700px) {
-  .content {
-    padding: 20px 12px 100px;
-  }
 }

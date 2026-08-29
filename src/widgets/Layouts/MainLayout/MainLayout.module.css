@@ -1,67 +1,58 @@
 .layout {
-  min-height: 100vh;
-  background-color: #121212;
-  color: #ffffff;
-
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
+
+  background-color: var(--bg-base);
+  color: var(--text-base);
 }
 
 .body {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 72px);
+  min-height: 0;
   min-width: 0;
   overflow: hidden;
 }
 
-.content{
+.content {
   display: flex;
   flex: 1;
+  min-height: 0;
   min-width: 0;
   overflow: hidden;
 }
 
 .library {
-  flex: 0 0 330px;
-  min-width: 330px;
-  transition: flex-basis 0.3s ease;
+  flex: 0 0 var(--sidebar-width);
+  transition: flex-basis var(--transition-normal);
 }
 
-.libraryEexpanded {
-  /* flex: 0 0 calc(100% - 300px); */
+.libraryExpanded {
   flex: 1;
 }
 
 .main {
   flex: 1;
   min-width: 0;
-  padding: 24px;
-  padding-bottom: 120px; /*Player.*/
+  min-height: 0;
+  padding-bottom: var(--player-height);
+
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
   transition:
     opacity 0.3s ease,
     flex 0.3s ease;
 }
 
-
-
 .mainCollapsed {
-  /* width: 0;
-    flex: unset; */
   flex: 0 0 0;
   padding-left: 0;
   padding-right: 0;
   overflow: hidden;
   opacity: 0;
 }
-
-/* .playerSidebar {
-  flex: 0 0 30px;
-  width: 30px;
-
-  &:hover {
-    width: 50px;
-  }
-} */

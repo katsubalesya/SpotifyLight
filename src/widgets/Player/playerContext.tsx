@@ -1,14 +1,14 @@
 import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type PropsWithChildren,} from "react";
-import type { ITrackRow } from "../../entities/trackrow/model/types";
+import type { TrackRow } from "../../entities/trackrow/model/types";
 
 interface PlayerContextValue {
-  currentTrack?: ITrackRow;
+  currentTrack?: TrackRow;
   isPlaying: boolean;
   progress: number;
   duration: number;
   volume: number;
   hasAudio: boolean;
-  playTrack: (track: ITrackRow, queue?: ITrackRow[]) => void;
+  playTrack: (track: TrackRow, queue?: TrackRow[]) => void;
   togglePlay: () => void;
   playNext: () => void;
   playPrevious: () => void;
@@ -20,14 +20,14 @@ const PlayerContext = createContext<PlayerContextValue | null>(null);
 
 export const PlayerProvider = ({ children }: PropsWithChildren) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [queue, setQueue] = useState<ITrackRow[]>([]);
-  const [currentTrack, setCurrentTrack] = useState<ITrackRow>();
+  const [queue, setQueue] = useState<TrackRow[]>([]);
+  const [currentTrack, setCurrentTrack] = useState<TrackRow>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.7);
 
-  const playTrack = useCallback((track: ITrackRow, nextQueue?: ITrackRow[]) => {
+  const playTrack = useCallback((track: TrackRow, nextQueue?: TrackRow[]) => {
     if (nextQueue) setQueue(nextQueue);
     setCurrentTrack((current) => {
       if (current?.id === track.id) {

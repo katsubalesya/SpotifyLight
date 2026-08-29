@@ -4,16 +4,17 @@
 import { MoreHorizontal, Music2, Pause, Play } from "lucide-react";
 import type { FC } from "react";
 
-import type { ITrackRow } from "../model/types";
+// import type { TrackRow } from "../model/types";
 import { Button } from "../../../shared/UI/Button";
-import styles from "./TrackRow.module.css";
+import styles from "./trackRow.module.css";
+import type { TrackRow as TrackRowData} from "../model/types";
 
-interface ITrackRowProps {
-  track: ITrackRow;
+interface TrackRowProps {
+  track: TrackRowData;
   index: number;
   isPlaying?: boolean;
-  onPlay?: (track: ITrackRow) => void;
-  onMoreClick?: (track: ITrackRow) => void;
+  onPlay?: (track: TrackRowData) => void;
+  onMoreClick?: (track: TrackRowData) => void;
 }
 
 const formatDuration = (durationMs?: number) => {
@@ -26,7 +27,7 @@ const formatDuration = (durationMs?: number) => {
   return `${minutes}:${seconds}`;
 };
 
-export const TrackRow: FC<ITrackRowProps> = ({
+export const TrackRow: FC<TrackRowProps> = ({
   track,
   index,
   isPlaying = false,

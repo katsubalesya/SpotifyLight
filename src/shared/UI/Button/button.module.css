@@ -37,28 +37,28 @@
 
 /* Основная кнопка */
 .primary {
-  background-color: #1ed760;
+  background-color: var(--brand-success);
   color: #000;
 }
 
 .primary:hover {
-  background-color: #1fdf64;
+  background-color: var(--brand-success-hover);
 }
 
 /* Вторичная */
 .secondary {
-  background-color: #fff;
-  color: #000;
+  background-color: var(--text-base);
+  color: var(--bg-base);
 }
 
 .secondary:hover {
-  background-color: #e6e6e6;
+  background-color: var(--text-subdued);
 }
 
 /* Кнопка без фона */
 .ghost {
   background-color: transparent;
-  color: #fff;
+  color: var(--text-base);
 }
 
 .ghost:hover {

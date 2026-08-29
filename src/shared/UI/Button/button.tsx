@@ -1,5 +1,5 @@
 import type { FC, PropsWithChildren } from "react";
-import styles from "./Button.module.css";
+import styles from "./button.module.css";
 
 interface IButtonProps extends PropsWithChildren {
   onClick?: () => void;

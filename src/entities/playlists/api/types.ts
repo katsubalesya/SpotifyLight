@@ -4,8 +4,8 @@ import type {
   SpotifyTrack,
 } from "../../../shared/API/typesCommon";
 
-export interface SpotifyPlaylistTrackItem {
-  track: SpotifyTrack | null;
+export interface SpotifyPlaylistItem {
+  item: SpotifyTrack | null;
 }
 
 export interface ISpotifyPlaylist {
@@ -22,7 +22,7 @@ export interface ISpotifyPlaylist {
   tracks: {
     href: string;
     total: number;
-    items: SpotifyPlaylistTrackItem[];
+    items: SpotifyPlaylistItem[];
   };
 }
 
@@ -48,7 +48,7 @@ collaborative: boolean;
   primary_color: string | null;
   public: boolean;
   snapshot_id: string;
-  tracks: { href: string; total: number; items: SpotifyPlaylistTrackItem[] };
+  items?: { href: string; total: number; items: SpotifyPlaylistItem[] };
   type: string;
   uri: string;
 }

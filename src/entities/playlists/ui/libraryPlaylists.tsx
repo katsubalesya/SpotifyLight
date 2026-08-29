@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import styles from "./LibraryPlaylists.module.css";
+import styles from "./libraryPlaylists.module.css";
 
 export type LibraryItemType = "playlist" | "artist" | "album" | "podcast";
 

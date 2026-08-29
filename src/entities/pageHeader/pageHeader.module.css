@@ -5,10 +5,8 @@
   min-height: 300px;
   padding: 12px;
   background: var(--bg-card-hover);
-  /* background:
-    linear-gradient(180deg, rgba(91, 58, 130, 0.85), rgba(18, 18, 18, 0.98)),
-    #121212; */
-}
+  }
+  
 .main {
   display: flex;
   flex-direction: row;
@@ -40,7 +38,7 @@
 .placeholder {
   display: grid;
   place-items: center;
-  background: var(--bg-hightlight);
+  background: var(--bg-highlight);
   color: var(--text-subdued);
   font-size: 72px;
 }
@@ -101,8 +99,11 @@
 .saveButton{
   color: var(--text-subdued);
 }
-@media (max-width: 700px) {
-  .header {
+.saveButton.saved {
+  color: var(--brand-success);
+}
+@media (max-width: 768px) {
+  .main {
     align-items: center;
     flex-direction: column;
     gap: 20px;

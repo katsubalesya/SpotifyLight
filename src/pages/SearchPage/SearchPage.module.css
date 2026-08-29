@@ -1,0 +1,92 @@
+.page {
+  min-height: 100%;
+  padding: 24px;
+  color: var(--text-base);
+}
+
+.page h1,
+.page h2,
+.page p {
+  margin-top: 0;
+}
+
+.section {
+  margin-top: 32px;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 12px;
+
+  color: var(--text-base);
+  background-color: var(--bg-card);
+
+  border-radius: 8px;
+  text-decoration: none;
+
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.card:hover {
+  background-color: var(--bg-card-hover);
+  transform: translateY(-2px);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--text-base);
+  outline-offset: 3px;
+}
+
+.image,
+.imagePlaceholder {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 6px;
+}
+
+.image {
+  display: block;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  background-color: var(--bg-highlight);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-top: 12px;
+  gap: 4px;
+}
+
+.title,
+.subtitle {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--text-subdued);
+  font-size: 14px;
+}
+
+.error {
+  color: #f15e6c;
+}

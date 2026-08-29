@@ -1,7 +1,8 @@
-import { useEffect, useState, type FC } from "react";
+import { useEffect, useMemo, useState, type FC } from "react";
 import { PanelLeftClose, Plus, Maximize2, Minimize2, List } from "lucide-react";
 
 import { Button } from "../../shared/UI/Button";
+import { Search } from "../../shared/UI/Search";
 import styles from "./LibrarySidebar.module.css";
 
 import { LibraryList, type LibraryItem } from "../../entities/playlists/ui";
@@ -20,17 +21,26 @@ interface LibrarySidebarProps {
   onResize: () => void;
 }
 
+const includesSearchQuery = (
+  query: string,
+  ...values: Array<string | null | undefined>
+) => {
+  if (!query) {
+    return true;
+  }
+
+  return values.some((value) => value?.toLocaleLowerCase().includes(query));
+};
+
 export const LibrarySidebar: FC<LibrarySidebarProps> = ({
   isExpanded = false,
   onResize,
 }) => {
-  // const token = useAccessToken();
-
   const [activeVariant, setActiveVariant] =
     useState<LibraryVariant>("playlists");
 
-  // const [isRecentsOpen, setIsRecentsOpen] = useState(false);
-const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [libraryQuery, setLibraryQuery] = useState("");
 
   const {
     playlists,
@@ -40,63 +50,72 @@ const [isCreating, setIsCreating] = useState(false);
     tracks,
     isLoading,
     error,
+    sectionErrors,
     loadLibrary,
     createPlaylist,
   } = useLibrary();
 
-  // const libraryList = useMemo(() => {
-  //   return getLibraryPlaylists(playlists);
-  // }, [playlists]);
+  const normalizedQuery = libraryQuery.trim().toLocaleLowerCase();
+
+  const filteredLibrary = useMemo(
+    () => ({
+      playlists: playlists.filter((item) =>
+        includesSearchQuery(normalizedQuery, item.name, item.ownerName),
+      ),
+      artists: artists.filter((item) =>
+        includesSearchQuery(normalizedQuery, item.name),
+      ),
+      albums: albums.filter((item) =>
+        includesSearchQuery(normalizedQuery, item.name, item.artistName),
+      ),
+      podcasts: podcasts.filter((item) =>
+        includesSearchQuery(normalizedQuery, item.name, item.publisher),
+      ),
+      tracks: tracks.filter((item) =>
+        includesSearchQuery(
+          normalizedQuery,
+          item.name,
+          item.artistName,
+          item.albumName,
+        ),
+      ),
+    }),
+    [playlists, artists, albums, podcasts, tracks, normalizedQuery],
+  );
 
   useEffect(() => {
     void loadLibrary();
   }, [loadLibrary]);
 
-  // const handleVariantChange = (variant: LibraryVariant) => {
-  //   setActiveVariant(variant);
+  const handleCreatePlaylist = async () => {
+    const enteredName = window.prompt("Enter playlist name");
 
-  //   if (variant === "artists" && artists.length === 0) {
-  //     void loadArtists();
-  //   }
-  //   if (variant === "albums" && albums.length === 0) {
-  //     void loadAlbums();
-  //   }
-  //   if (variant === "podcasts" && podcasts.length === 0) {
-  //     void loadPodcasts();
-  //   }
-  // };
+    if (enteredName === null) {
+      return;
+    }
 
-const handleCreatePlaylist = async () => {
-  const enteredName = window.prompt("Enter playlist name");
+    const playlistName = enteredName.trim();
 
-  if (enteredName === null) {
-    return;
-  }
+    if (!playlistName) {
+      window.alert("Playlist name cannot be empty");
+      return;
+    }
 
-  const playlistName = enteredName.trim();
+    try {
+      setIsCreating(true);
 
-  if (!playlistName) {
-    window.alert("Playlist name cannot be empty");
-    return;
-  }
+      await createPlaylist(playlistName);
 
-  try {
-    setIsCreating(true);
+      setActiveVariant("playlists");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create playlist";
 
-    await createPlaylist(playlistName);
-
-    setActiveVariant("playlists");
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to create playlist";
-
-    window.alert(message);
-  } finally {
-    setIsCreating(false);
-  }
-};
+      window.alert(message);
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const handleRecents = () => {
     setActiveVariant("recents");
@@ -108,18 +127,27 @@ const handleCreatePlaylist = async () => {
 
   const renderLibraryContent = () => {
     if (isLoading) {
-      return <span className={styles.loader}>Loading...</span>;
+      return <span>Loading...</span>;
     }
 
     if (error) {
       return <span>{error}</span>;
     }
 
+    const sectionError =
+      activeVariant === "recents"
+        ? sectionErrors.tracks
+        : sectionErrors[activeVariant];
+
+    if (sectionError) {
+      return <span>{sectionError}</span>;
+    }
+
     switch (activeVariant) {
       case "playlists":
         return (
           <LibraryList
-            items={playlists.map<LibraryItem>((playlist) => ({
+            items={filteredLibrary.playlists.map<LibraryItem>((playlist) => ({
               id: playlist.id,
               type: "playlist",
               title: playlist.name,
@@ -134,7 +162,7 @@ const handleCreatePlaylist = async () => {
       case "artists":
         return (
           <LibraryList
-            items={artists.map<LibraryItem>((artist) => ({
+            items={filteredLibrary.artists.map<LibraryItem>((artist) => ({
               id: artist.id,
               type: "artist",
               title: artist.name,
@@ -149,7 +177,7 @@ const handleCreatePlaylist = async () => {
       case "albums":
         return (
           <LibraryList
-            items={albums.map<LibraryItem>((album) => ({
+            items={filteredLibrary.albums.map<LibraryItem>((album) => ({
               id: album.id,
               type: "album",
               title: album.name,
@@ -164,7 +192,7 @@ const handleCreatePlaylist = async () => {
       case "podcasts":
         return (
           <LibraryList
-            items={podcasts.map<LibraryItem>((podcast) => ({
+            items={filteredLibrary.podcasts.map<LibraryItem>((podcast) => ({
               id: podcast.id,
               type: "podcast",
               title: podcast.name,
@@ -177,22 +205,15 @@ const handleCreatePlaylist = async () => {
         );
 
       case "recents":
-        return <RecentTrackList tracks={tracks} />;
+        return <RecentTrackList tracks={filteredLibrary.tracks} />;
 
       default:
         return null;
     }
   };
 
-  // const newPlaylist = await response.json();
-  // };
-
-  // function handleSwitchSidebarSize(): void {
-  //   throw new Error("Function not implemented.");
-  // }
-
   return (
-    <div className={`${styles.sidebar} ${isExpanded ? styles.expanded : ""}`}>
+    <div className={styles.sidebar}>
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <PanelLeftClose
@@ -203,8 +224,12 @@ const handleCreatePlaylist = async () => {
           <span>Your Library</span>
         </div>
         <div className={styles.headerRight}>
-          <Button variant="ghost" onClick={handleCreatePlaylist} disabled={isCreating}>
-            <Plus size={18}/>
+          <Button
+            variant="ghost"
+            onClick={handleCreatePlaylist}
+            disabled={isCreating}
+          >
+            <Plus size={18} />
             Create
           </Button>
 
@@ -214,7 +239,7 @@ const handleCreatePlaylist = async () => {
         </div>
       </div>
 
-      <div className={styles.variants}>
+      <div>
         <Button
           variant={activeVariant === "playlists" ? "secondary" : "ghost"}
           onClick={() => handleVariantChange("playlists")}
@@ -229,31 +254,36 @@ const handleCreatePlaylist = async () => {
           Artists
         </Button>
 
-        <Button variant={activeVariant === "albums" ? "secondary" : "ghost"} onClick={() => handleVariantChange("albums")}>
+        <Button
+          variant={activeVariant === "albums" ? "secondary" : "ghost"}
+          onClick={() => handleVariantChange("albums")}
+        >
           Albums
         </Button>
 
-        <Button variant={activeVariant === "podcasts" ? "secondary" : "ghost"} onClick={() => handleVariantChange("podcasts")}>
+        <Button
+          variant={activeVariant === "podcasts" ? "secondary" : "ghost"}
+          onClick={() => handleVariantChange("podcasts")}
+        >
           Podcasts
         </Button>
       </div>
 
-      <div>
-        <div>Search</div>
+      <div className={styles.libraryTools}>
+        <Search
+          value={libraryQuery}
+          onChange={setLibraryQuery}
+          placeholder="Search in Your Library"
+          ariaLabel="Search in Your Library"
+          variant="library"
+        />
         <Button variant="ghost" onClick={handleRecents}>
           Recents
           <List />
         </Button>
       </div>
 
-      <div className={styles.listContainer}>
-        {
-          renderLibraryContent()
-          //   isLoading ? (<span className={styles.loader}>Loading...</span> ) : (
-          //     <LibraryPlaylists list={libraryList} />
-          // )
-        }
-      </div>
+      <div className={styles.listContainer}>{renderLibraryContent()}</div>
     </div>
   );
 };

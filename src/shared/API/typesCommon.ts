@@ -16,12 +16,8 @@ export interface SpotifyArtist extends SpotifySimplifiedArtist {
   uri: string;
   external_urls: SpotifyExternalUrls;
   images: SpotifyImage[];
-  genres: string[];
-  popularity: number;
-  followers: {
-    total: number;
-  };
-}
+  genres?: string[];
+  }
 
 export interface SpotifyTrack {
   id: string;
@@ -38,7 +34,7 @@ export interface SpotifyTrack {
 export interface SpotifyAlbum {
   id: string;
   name: string;
-  label: string;
+  label?: string;
   release_date: string;
   total_tracks: number;
   images: SpotifyImage[];
@@ -46,6 +42,27 @@ export interface SpotifyAlbum {
   tracks: {
     items: SpotifyTrack[];
   };
+}
+
+export interface SpotifySimplifiedAlbum {
+  id: string;
+  name: string;
+  album_type: "album" | "single" | "compilation";
+  release_date: string;
+  total_tracks: number;
+  images: SpotifyImage[];
+  artists: SpotifySimplifiedArtist[];
+  external_urls: SpotifyExternalUrls;
+  uri: string;
+}
+
+export interface SpotifyArtistAlbumsResponse {
+  items: SpotifySimplifiedAlbum[];
+  total: number;
+  limit: number;
+  offset: number;
+  next: string | null;
+  previous: string | null;
 }
 
 export interface SpotifyEpisode {
@@ -56,5 +73,9 @@ export interface SpotifyEpisode {
   audio_preview_url: string | null;
   release_date: string;
   images: SpotifyImage[];
+}
+
+export interface SpotifyOwner {
+  display_name?: string | null;
 }
 

@@ -18,6 +18,18 @@ import { mapSpotifyPlaylists } from "../../playlists/model/mapSpotifyPlaylists";
 import { useAccessToken } from "../../hooks/useAccessToken";
 import { createPlaylist as createPlaylistRequest } from "../../playlists/api/createPlaylist";
 
+export type LibrarySection =
+  | "playlists"
+  | "artists"
+  | "albums"
+  | "podcasts"
+  | "tracks";
+
+type LibraryErrors = Partial<Record<LibrarySection, string>>;
+
+const getErrorMessage = (reason: unknown) =>
+  reason instanceof Error ? reason.message : "Failed to load this section";
+
 export const useLibrary = () => {
   const token = useAccessToken();
 
@@ -29,6 +41,7 @@ export const useLibrary = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sectionErrors, setSectionErrors] = useState<LibraryErrors>({});
 
   const createPlaylist = useCallback(
     async (name: string) => {
@@ -59,6 +72,7 @@ export const useLibrary = () => {
     try {
       setIsLoading(true);
       setError(null);
+      setSectionErrors({});
 
       const playlistsPromise = spotifyFetch<{
         items: SpotifyPlaylistsResponse[];
@@ -102,6 +116,25 @@ export const useLibrary = () => {
         setTracks(tracksResult.value);
       }
 
+      const sections: LibrarySection[] = [
+        "playlists",
+        "artists",
+        "albums",
+        "podcasts",
+        "tracks",
+      ];
+      const nextSectionErrors = results.reduce<LibraryErrors>(
+        (errors, result, index) => {
+          if (result.status === "rejected") {
+            errors[sections[index]] = getErrorMessage(result.reason);
+          }
+          return errors;
+        },
+        {},
+      );
+
+      setSectionErrors(nextSectionErrors);
+
       if (results.every((result) => result.status === "rejected")) {
         throw new Error("Failed to load library");
       }
@@ -122,6 +155,7 @@ export const useLibrary = () => {
     tracks,
     isLoading,
     error,
+    sectionErrors,
     loadLibrary,
     createPlaylist,
   };

@@ -4,7 +4,7 @@ import { Header } from "../../header/header";
 import { LibrarySidebar } from "../../librarySidebar/librarySidebar";
 import { PlayerSidebar } from "../../playerSidebar/playerSidebar";
 import { Player } from "../../Player/player";
-import styles from "./MainLayout.module.css";
+import styles from "./mainLayout.module.css";
 
 // export const MainLayout: FC<PropsWithChildren> = ({children}) => {
 export const MainLayout = () => {
@@ -23,7 +23,7 @@ export const MainLayout = () => {
         <div className={styles.content}>
           {/* Library + Main */}
           <div
-            className={`${styles.library} ${isLibrarySidebarExpanded ? styles.libraryEexpanded : ""}`}
+            className={`${styles.library} ${isLibrarySidebarExpanded ? styles.libraryExpanded : ""}`}
           >
             <LibrarySidebar
               isExpanded={isLibrarySidebarExpanded}

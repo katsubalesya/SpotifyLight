@@ -1,10 +1,22 @@
-import { Search, User } from "lucide-react";
+import { useState } from "react";
+import { User } from "lucide-react";
 import Logo from "../../app/img,logo/Primary_Logo_White_RGB.svg";
-import styles from "./Header.module.css";
-import { Link } from "react-router-dom";
-// import { Input } from "../../shared/UI/Input";
+import { Link, useNavigate } from "react-router-dom";
+import { Search } from "../../shared/UI/Search";
+import styles from "./header.module.css";
 
 export const Header = () => {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (searchQuery: string) => {
+    const normalizedQuery = searchQuery.trim();
+    if(!normalizedQuery) {
+      return;
+    }
+    navigate(`/search?q=${encodeURIComponent(normalizedQuery)}`);
+  };
+
   return (
     <header className={styles.header}>
       <Link to='/' className={styles.logo}>
@@ -12,14 +24,14 @@ export const Header = () => {
         SpotifyLight
       </Link>
 
-      <div> </div>
-      <div className={styles.search}>
-        <Search size={20} />
-
-        {/* <Input type="search" placeholder="What do you want to play?" value={query} onChange={setQuery} /> */}
-
-        <input type="text" placeholder="What do you want to play?" />
-      </div>
+      <Search
+        className={styles.search}
+        value={query}
+        onChange={setQuery}
+        onSubmit={handleSearch}
+        placeholder="What do you want to play?"
+        ariaLabel="Search Spotify"
+      />
 
       <button className={styles.profile}>
         <User size={20} />

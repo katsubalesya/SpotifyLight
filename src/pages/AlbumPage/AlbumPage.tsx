@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
-// import { useAccessToken } from "../../entities/hooks/useAccessToken";
 import { TrackList } from "../../entities/trackList/ui/trackList";
-import type { ITrackRow } from "../../entities/trackrow/model/types";
+import type { TrackRow } from "../../entities/trackrow/model/types";
 import { PageHeader } from "../../entities/pageHeader/pageHeader";
 import { usePlayer } from "../../widgets/Player/playerContext";
 
-import styles from "./AlbumPage.module.css";
+// import styles from "./AlbumPage.module.css";
 import { spotifyFetch } from "../../shared/API/fetchRequest";
 import type { SpotifyAlbum } from "../../shared/API/typesCommon";
+import { PageContainer } from "../../shared/UI/pageContainer";
 
 const AlbumPage = () => {
   const { albumId } = useParams<{ albumId: string }>();
@@ -24,8 +24,9 @@ const AlbumPage = () => {
     const loadAlbum = async () => {
       const albumData = await spotifyFetch<SpotifyAlbum>(`/albums/${albumId}`);
 
+      const albumUri = `spotify:album:${albumId}`;
       const savedData = await spotifyFetch<boolean[]>(
-        `/me/albums/contains?ids=${albumId}`,
+        `/me/library/contains?uris=${encodeURIComponent(albumUri)}`,
       );
 
       setAlbum(albumData);
@@ -35,7 +36,7 @@ const AlbumPage = () => {
     loadAlbum();
   }, [albumId]);
 
-  const tracks = useMemo<ITrackRow[]>(() => {
+  const tracks = useMemo<TrackRow[]>(() => {
     if (!album) return [];
 
     return album.tracks.items.map((track) => ({
@@ -49,7 +50,7 @@ const AlbumPage = () => {
     }));
   }, [album]);
 
-  const handleTrackPlay = (track: ITrackRow) => {
+  const handleTrackPlay = (track: TrackRow) => {
     playTrack(track, tracks);
   };
 
@@ -72,9 +73,13 @@ const AlbumPage = () => {
   const handleSaveAlbum = async () => {
     if (!albumId) return;
 
-    await spotifyFetch<void>(`/me/albums?ids=${albumId}`, {
-      method: isSaved ? "DELETE" : "PUT",
-    });
+    const albumUri = `spotify:album:${albumId}`;
+    await spotifyFetch<void>(
+      `/me/library?uris=${encodeURIComponent(albumUri)}`,
+      {
+        method: isSaved ? "DELETE" : "PUT",
+      },
+    );
 
     setIsSaved(!isSaved);
   };
@@ -84,12 +89,12 @@ const AlbumPage = () => {
   }
 
   return (
-    <section className={styles.page}>
+    <PageContainer>
       <PageHeader
         type="album"
         title={album.name}
         imageUrl={album.images[0]?.url}
-        description={album.label}
+        // description={album.label}
         meta={[
           album.artists.map((artist) => artist.name).join(", "),
           album.release_date.slice(0, 4),
@@ -103,7 +108,7 @@ const AlbumPage = () => {
         onSave={handleSaveAlbum}
       />
 
-      <div className={styles.content}>
+      <PageContainer.Content>
         <TrackList
           tracks={tracks}
           currentTrackId={isPlaying ? currentTrack?.id : undefined}
@@ -113,8 +118,8 @@ const AlbumPage = () => {
           }}
           emptyMessage="There are no tracks in this album yet."
         />
-      </div>
-    </section>
+      </PageContainer.Content>
+    </PageContainer>
   );
 };
 
