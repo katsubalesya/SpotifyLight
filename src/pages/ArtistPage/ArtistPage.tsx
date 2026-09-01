@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { PageHeader } from "../../entities/pageHeader/pageHeader";
+import { PageHeader } from "../../widgets/pageHeader/pageHeader";
 import { spotifyFetch } from "../../shared/API/fetchRequest";
-import type { SpotifyArtist, SpotifyArtistAlbumsResponse, SpotifySimplifiedAlbum} from "../../shared/API/typesCommon";
+import type {
+  SpotifyArtist,
+  SpotifyArtistAlbumsResponse,
+  SpotifySimplifiedAlbum,
+} from "../../shared/API/typesCommon";
 import { PageContainer } from "../../shared/UI/pageContainer";
 
 import styles from "./ArtistPage.module.css";
@@ -20,7 +24,7 @@ const ArtistPage = () => {
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
-    if (!artistId ) {
+    if (!artistId) {
       setError("Failed to retrieve artist data.");
       setIsLoading(false);
       return;
@@ -34,65 +38,73 @@ const ArtistPage = () => {
         setActionError("");
 
         const [artistData, albumsData] = await Promise.all([
-          spotifyFetch<SpotifyArtist>(`/artists/${artistId}`,{signal: controller.signal}),
-          spotifyFetch<SpotifyArtistAlbumsResponse>(`/artists/${artistId}/albums?include_groups=album,single&limit=10`, {signal:controller.signal}),
+          spotifyFetch<SpotifyArtist>(`/artists/${artistId}`, {
+            signal: controller.signal,
+          }),
+          spotifyFetch<SpotifyArtistAlbumsResponse>(
+            `/artists/${artistId}/albums?include_groups=album,single&limit=10`,
+            { signal: controller.signal },
+          ),
         ]);
 
         setArtist(artistData);
         setAlbums(albumsData.items);
-        setAlbumsTotal(albumsData.total)
+        setAlbumsTotal(albumsData.total);
 
         const artistUri = `spotify:artist:${artistId}`;
 
-       try {
-        const savedData = await spotifyFetch<boolean[]>(
-          `/me/library/contains?uris=${encodeURIComponent(artistUri)}`,
-          { signal: controller.signal },
-        );
+        try {
+          const savedData = await spotifyFetch<boolean[]>(
+            `/me/library/contains?uris=${encodeURIComponent(artistUri)}`,
+            { signal: controller.signal },
+          );
 
-        setIsSaved(savedData[0] ?? false);
-      } catch (savedStateError) {
+          setIsSaved(savedData[0] ?? false);
+        } catch (savedStateError) {
+          if (
+            savedStateError instanceof DOMException &&
+            savedStateError.name === "AbortError"
+          ) {
+            return;
+          }
+
+          console.error(
+            "Failed to check whether artist is saved:",
+            savedStateError,
+          );
+
+          setIsSaved(false);
+        }
+      } catch (requestError) {
         if (
-          savedStateError instanceof DOMException &&
-          savedStateError.name === "AbortError"
+          requestError instanceof DOMException &&
+          requestError.name === "AbortError"
         ) {
           return;
         }
 
-        console.error(
-          "Failed to check whether artist is saved:",
-          savedStateError,
+        console.error("Failed to load artist:", requestError);
+
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Failed to load artist. Try refreshing the page.",
         );
-
-        setIsSaved(false);
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
-    } catch (requestError) {
-      if (requestError instanceof DOMException && requestError.name === "AbortError") {
-        return;
-      }
+    };
 
-      console.error("Failed to load artist:", requestError);
+    void loadArtist();
 
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Failed to load artist. Try refreshing the page.",
-      );
-    } finally {
-      if (!controller.signal.aborted) {
-        setIsLoading(false);
-      }
-    }
-  };
+    return () => {
+      controller.abort();
+    };
+  }, [artistId]);
 
-  void loadArtist();
-
-  return () => {
-    controller.abort();
-  };
-}, [artistId]);
-      
-    const handleSaveArtist = async () => {
+  const handleSaveArtist = async () => {
     if (!artistId) return;
 
     try {
@@ -111,17 +123,27 @@ const ArtistPage = () => {
       console.error(requestError);
 
       setActionError(
-        requestError instanceof Error ? requestError.message : "Failed to update the artist in your library.",
-      )
+        requestError instanceof Error
+          ? requestError.message
+          : "Failed to update the artist in your library.",
+      );
     }
   };
 
   if (isLoading) {
-    return (<section className={styles.state} aria-live="polite">Loading artist...</section>);
+    return (
+      <section className={styles.state} aria-live="polite">
+        Loading artist...
+      </section>
+    );
   }
 
   if (error || !artist) {
-    return (<section className={styles.state} role="alert">{error || "Artist not found."}</section>);
+    return (
+      <section className={styles.state} role="alert">
+        {error || "Artist not found."}
+      </section>
+    );
   }
 
   return (
@@ -130,15 +152,8 @@ const ArtistPage = () => {
         type="artist"
         title={artist.name}
         imageUrl={artist.images[0]?.url}
-        // description={
-        //   artist.genres?.length ? artist.genres.join(", ") : undefined
-        // }
         meta={[`${albumsTotal} releases`]}
-        // isPlaying={
-        //   isPlaying && tracks.some(({ id }) => id === currentTrack?.id)
-        // }
         isSaved={isSaved}
-        // onPlay={handleArtistPlay}
         onSave={handleSaveArtist}
       />
 
@@ -172,17 +187,12 @@ const ArtistPage = () => {
                       alt={`${album.name} cover`}
                     />
                   ) : (
-                    <div
-                      className={styles.albumPlaceholder}
-                      aria-hidden="true"
-                    >
+                    <div className={styles.albumPlaceholder} aria-hidden="true">
                       ♪
                     </div>
                   )}
 
-                  <strong className={styles.albumTitle}>
-                    {album.name}
-                  </strong>
+                  <strong className={styles.albumTitle}>{album.name}</strong>
 
                   <span className={styles.albumMeta}>
                     {album.release_date.slice(0, 4)}

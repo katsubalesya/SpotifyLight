@@ -1,5 +1,6 @@
 import { SCOPES_FOR_API } from "../../app/consts/scope";
 import {
+  ACCESS_TOKEN_EXPIRES_AT_KEY,
   ACCESS_TOKEN_KEY,
   CODE_VERIFIER_KEY,
   REFRESH_TOKEN_KEY,
@@ -33,10 +34,17 @@ export function clearTokens(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(CODE_VERIFIER_KEY);
+  localStorage.removeItem(ACCESS_TOKEN_EXPIRES_AT_KEY);
 }
 
 function saveTokens(data: SpotifyTokenResponse): void {
   localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
+
+  localStorage.setItem(
+    ACCESS_TOKEN_EXPIRES_AT_KEY,
+    String(Date.now() + data.expires_in * 1000),
+  );
+
   if (data.refresh_token) {
     localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh_token);
   }
@@ -105,10 +113,28 @@ export async function exchangeCodeForToken(
 }
 
 /** Optional: refresh access token with stored refresh_token. */
+
+export async function getValidAccessToken(): Promise<string> {
+  const token = getAccessToken();
+
+  const expiresAt = Number(localStorage.getItem(ACCESS_TOKEN_EXPIRES_AT_KEY));
+
+  const expiresSoon = !expiresAt || Date.now() >= expiresAt - 60_000;
+
+  if (token && !expiresSoon) {
+    return token;
+  }
+
+  const tokenData = await refreshAccessToken();
+  return tokenData.access_token;
+}
+
 export async function refreshAccessToken(): Promise<SpotifyTokenResponse> {
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
   if (!refreshToken) {
-    throw new Error("No refresh_token");
+    clearTokens();
+
+    throw new Error("Spotify session expired. Please sign in again.");
   }
 
   const response = await fetch(SPOTIFY_TOKEN_URL, {
@@ -125,8 +151,17 @@ export async function refreshAccessToken(): Promise<SpotifyTokenResponse> {
 
   const data = await response.json();
 
-  if (!response.ok || !data.access_token) {
+  if (!response.ok) {
+    if (data.error === "invalid_grant") {
+      clearTokens();
+
+      throw new Error("Spotify authorization expired. Please sign in again.");
+    }
+
     throw new Error(data.error_description || data.error || "Refresh failed");
+  }
+  if (!data.access_token) {
+    throw new Error("Spotify did not return an access token.");
   }
 
   saveTokens(data as SpotifyTokenResponse);

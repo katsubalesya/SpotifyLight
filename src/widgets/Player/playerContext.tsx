@@ -1,96 +1,267 @@
-import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type PropsWithChildren,} from "react";
-import type { TrackRow } from "../../entities/trackrow/model/types";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
+import type { TrackRowData } from "../../entities/track";
+import type { SpotifyWebPlaybackPlayer } from "../../shared/API/typesPlayback";
+import { startPlayback } from "../../features/playback/api/playback";
+import { clearTokens, getValidAccessToken } from "../../shared/API/spotifyAuth";
 
 interface PlayerContextValue {
-  currentTrack?: TrackRow;
+  currentTrack?: TrackRowData;
+  isReady: boolean;
+  isConnecting: boolean;
   isPlaying: boolean;
+  playerError: string | null;
+  playTrack: (track: TrackRowData, queue?: TrackRowData[]) => Promise<void>;
+  togglePlay: () => Promise<void> | undefined;
+  seek: (seconds: number) => Promise<void> | undefined;
+  setVolume: (volume: number) => Promise<void> | undefined;
   progress: number;
   duration: number;
   volume: number;
-  hasAudio: boolean;
-  playTrack: (track: TrackRow, queue?: TrackRow[]) => void;
-  togglePlay: () => void;
   playNext: () => void;
   playPrevious: () => void;
-  seek: (seconds: number) => void;
-  setVolume: (volume: number) => void;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
 
 export const PlayerProvider = ({ children }: PropsWithChildren) => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [queue, setQueue] = useState<TrackRow[]>([]);
-  const [currentTrack, setCurrentTrack] = useState<TrackRow>();
+  const playerRef = useRef<SpotifyWebPlaybackPlayer | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [playerError, setPlayerError] = useState<string | null>(null);
+  const [queue, setQueue] = useState<TrackRowData[]>([]);
+  const [currentTrack, setCurrentTrack] = useState<TrackRowData>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.7);
 
-  const playTrack = useCallback((track: TrackRow, nextQueue?: TrackRow[]) => {
-    if (nextQueue) setQueue(nextQueue);
-    setCurrentTrack((current) => {
-      if (current?.id === track.id) {
-        setIsPlaying((playing) => !playing);
-        return current;
+  const playTrack = useCallback(
+    async (track: TrackRowData, nextQueue?: TrackRowData[]) => {
+      const player = playerRef.current;
+
+      if (!player || !deviceId) {
+        setPlayerError("Spotify player is not ready yet.");
+        return;
       }
-      setProgress(0);
-      setIsPlaying(true);
-      return track;
-    });
-  }, []);
+      try {
+        setPlayerError(null);
+        await player.activateElement();
+        await startPlayback(deviceId, track.uri);
 
-  const selectRelativeTrack = useCallback((direction: -1 | 1) => {
-    if (!currentTrack || queue.length === 0) return;
-    const currentIndex = queue.findIndex(({ id }) => id === currentTrack.id);
-    const nextTrack = queue[(currentIndex + direction + queue.length) % queue.length];
-    if (nextTrack) playTrack(nextTrack);
-  }, [currentTrack, playTrack, queue]);
+        if (nextQueue) {
+          setQueue(nextQueue);
+        }
+      } catch (error) {
+        setPlayerError(
+          error instanceof Error
+            ? error.message
+            : "Failed to start Spotify playback.",
+        );
+      }
+    },
+    [deviceId],
+  );
 
-  const playNext = useCallback(() => selectRelativeTrack(1), [selectRelativeTrack]);
-  const playPrevious = useCallback(() => selectRelativeTrack(-1), [selectRelativeTrack]);
+  const selectRelativeTrack = useCallback(
+    (direction: -1 | 1) => {
+      if (!currentTrack || queue.length === 0) return;
+      const currentIndex = queue.findIndex(
+        ({ uri }) => uri === currentTrack.uri,
+      );
+
+      if (currentIndex === -1) {
+        return;
+      }
+
+      const nextTrack =
+        queue[(currentIndex + direction + queue.length) % queue.length];
+      if (nextTrack) playTrack(nextTrack);
+    },
+    [currentTrack, playTrack, queue],
+  );
+
+  const playNext = useCallback(() => {
+    selectRelativeTrack(1);
+    return undefined;
+  }, [selectRelativeTrack]);
+  const playPrevious = useCallback(() => {
+    selectRelativeTrack(-1);
+    return undefined;
+  }, [selectRelativeTrack]);
+
   const togglePlay = useCallback(() => {
-    if (currentTrack) setIsPlaying((playing) => !playing);
-  }, [currentTrack]);
+    return playerRef.current?.togglePlay();
+  }, []);
 
   const seek = useCallback((seconds: number) => {
-    if (audioRef.current) audioRef.current.currentTime = seconds;
-    setProgress(seconds);
+    return playerRef.current?.seek(seconds * 1000);
   }, []);
 
-  const setVolume = useCallback((nextVolume: number) => {
-    const normalized = Math.min(1, Math.max(0, nextVolume));
+  const setVolume = useCallback((volume: number) => {
+    const normalized = Math.min(1, Math.max(0, volume));
+
     setVolumeState(normalized);
-    if (audioRef.current) audioRef.current.volume = normalized;
+
+    return playerRef.current?.setVolume(normalized);
   }, []);
+
+  const value = useMemo<PlayerContextValue>(
+    () => ({
+      currentTrack,
+      isReady,
+      isConnecting,
+      isPlaying,
+      progress,
+      duration: duration || (currentTrack?.durationMs ?? 0) / 1000,
+      volume,
+      playerError,
+      playTrack,
+      togglePlay,
+      playNext,
+      playPrevious,
+      seek,
+      setVolume,
+    }),
+    [
+      currentTrack,
+      isReady,
+      isConnecting,
+      isPlaying,
+      progress,
+      duration,
+      playerError,
+      playNext,
+      playPrevious,
+      playTrack,
+      seek,
+      setVolume,
+      togglePlay,
+      volume,
+    ],
+  );
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !currentTrack?.previewUrl) return;
-    if (isPlaying) void audio.play().catch(() => setIsPlaying(false));
-    else audio.pause();
-  }, [currentTrack, isPlaying]);
+    const initializePlayer = () => {
+      if (!window.Spotify) {
+        setIsConnecting(false);
+        setPlayerError("Spotify Web Playback SDK failed to load.");
+        return;
+      }
 
-  const value = useMemo<PlayerContextValue>(() => ({
-    currentTrack,
-    isPlaying,
-    progress,
-    duration: duration || (currentTrack?.durationMs ?? 0) / 1000,
-    volume,
-    hasAudio: Boolean(currentTrack?.previewUrl),
-    playTrack,
-    togglePlay,
-    playNext,
-    playPrevious,
-    seek,
-    setVolume,
-  }), [currentTrack, duration, isPlaying, playNext, playPrevious, playTrack, progress, seek, setVolume, togglePlay, volume]);
+      const player = new window.Spotify.Player({
+        name: "SpLight Web Player",
+        getOAuthToken: (callback) => {
+          void getValidAccessToken()
+            .then(callback)
+            .catch(() => {
+              clearTokens();
+              setPlayerError("Spotify session expired. Please sign in again.");
+            });
+        },
+        volume: 0.7,
+        enableMediaSession: true,
+      });
+
+      player.addListener("ready", ({ device_id }) => {
+        setDeviceId(device_id);
+        setIsReady(true);
+        setIsConnecting(false);
+        setPlayerError(null);
+      });
+
+      player.addListener("not_ready", () => {
+        setDeviceId(null);
+        setIsReady(false);
+        setIsConnecting(false);
+        setPlayerError("Spotify player is temporarily unavailable.");
+      });
+
+      player.addListener("player_state_changed", (state) => {
+        if (!state) {
+          return;
+        }
+
+        setIsPlaying(!state.paused);
+        setProgress(state.position / 1000);
+        setDuration(state.duration / 1000);
+
+        const sdkTrack = state.track_window.current_track;
+
+        setCurrentTrack({
+          id: sdkTrack.id,
+          uri: sdkTrack.uri,
+          type: sdkTrack.type,
+          title: sdkTrack.name,
+          artists: sdkTrack.artists.map((artist) => artist.name),
+          album: sdkTrack.album?.name,
+          imageUrl: sdkTrack.album?.images[0]?.url ?? null,
+          durationMs: sdkTrack.duration_ms,
+        });
+      });
+
+      player.addListener("initialization_error", ({ message }) => {
+        setIsReady(false);
+        setIsConnecting(false);
+        setPlayerError(message);
+      });
+
+      player.addListener("authentication_error", ({ message }) => {
+        setIsReady(false);
+        setPlayerError(message);
+        setIsConnecting(false);
+      });
+
+      player.addListener("account_error", () => {
+        setIsReady(false);
+        setIsConnecting(false);
+        setPlayerError("Spotify Premium is required for browser playback.");
+      });
+
+      player.addListener("playback_error", ({ message }) => {
+        setPlayerError(message);
+      });
+
+      playerRef.current = player;
+
+      void player
+        .connect()
+        .then((connected) => {
+          if (!connected) {
+            setIsConnecting(false);
+            setPlayerError("Could not connect Spotify Web Player.");
+          }
+        })
+        .catch(() => {
+          setIsConnecting(false);
+          setPlayerError("Failed to initialize Spotify Web Player.");
+        });
+    };
+
+    if (window.Spotify) {
+      initializePlayer();
+    } else {
+      window.onSpotifyWebPlaybackSDKReady = initializePlayer;
+    }
+
+    return () => {
+      playerRef.current?.disconnect();
+      playerRef.current = null;
+      window.onSpotifyWebPlaybackSDKReady = undefined;
+    };
+  }, []);
 
   return (
-    <PlayerContext.Provider value={value}>
-      {children}
-      <audio ref={audioRef} src={currentTrack?.previewUrl ?? undefined} preload="metadata" onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)} onTimeUpdate={(event) => setProgress(event.currentTarget.currentTime)} onEnded={playNext} />
-    </PlayerContext.Provider>
+    <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>
   );
 };
 
@@ -98,6 +269,7 @@ export const PlayerProvider = ({ children }: PropsWithChildren) => {
 // eslint-disable-next-line react/only-export-components
 export const usePlayer = () => {
   const context = useContext(PlayerContext);
-  if (!context) throw new Error("usePlayer должен использоваться внутри PlayerProvider");
+  if (!context)
+    throw new Error("usePlayer должен использоваться внутри PlayerProvider");
   return context;
 };

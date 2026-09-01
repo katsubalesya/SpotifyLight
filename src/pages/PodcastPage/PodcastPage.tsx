@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { PageHeader } from "../../entities/pageHeader/pageHeader";
-import { TrackList } from "../../entities/trackList/ui/trackList";
-import type { TrackRow } from "../../entities/trackrow/model/types";
+import { PageHeader } from "../../widgets/pageHeader/pageHeader";
+import { TrackList } from "../../entities/track/ui/trackList";
 import { usePlayer } from "../../widgets/Player/playerContext";
 
 import styles from "./PodcastPage.module.css";
 import { spotifyFetch } from "../../shared/API/fetchRequest";
 import type { SpotifyShow } from "../../entities/podcast/api/types";
 import { PageContainer } from "../../shared/UI/pageContainer";
+import type { TrackRowData } from "../../entities/track";
 
 const PodcastPage = () => {
   const { showId } = useParams();
@@ -36,7 +36,9 @@ const PodcastPage = () => {
 
         const [podcastData, savedData] = await Promise.all([
           spotifyFetch<SpotifyShow>(`/shows/${showId}`),
-          spotifyFetch<boolean[]>(`/me/library/contains?uris=${encodeURIComponent(showUri)}`),
+          spotifyFetch<boolean[]>(
+            `/me/library/contains?uris=${encodeURIComponent(showUri)}`,
+          ),
         ]);
 
         setPodcast(podcastData);
@@ -52,21 +54,23 @@ const PodcastPage = () => {
     void loadPodcast();
   }, [showId]);
 
-  const episodes = useMemo<TrackRow[]>(() => {
+  const episodes = useMemo<TrackRowData[]>(() => {
     if (!podcast) return [];
 
     return podcast.episodes.items.map((episode) => ({
       id: episode.id,
+      uri: episode.uri,
+      type: "episode",
       title: episode.name,
       artists: ["Podcast"],
       album: episode.release_date,
       imageUrl: episode.images[0]?.url ?? podcast.images[0]?.url ?? null,
       durationMs: episode.duration_ms,
-      previewUrl: episode.audio_preview_url,
+      externalUrl: episode.external_urls.spotify,
     }));
   }, [podcast]);
 
-  const handleEpisodePlay = (episode: TrackRow) => {
+  const handleEpisodePlay = (episode: TrackRowData) => {
     playTrack(episode, episodes);
   };
 
@@ -91,9 +95,12 @@ const PodcastPage = () => {
 
     try {
       const showUri = `spotify:show:${showId}`;
-      await spotifyFetch<void>(`/me/library?uris=${encodeURIComponent(showUri)}`, {
-        method: isSaved ? "DELETE" : "PUT",
-      });
+      await spotifyFetch<void>(
+        `/me/library?uris=${encodeURIComponent(showUri)}`,
+        {
+          method: isSaved ? "DELETE" : "PUT",
+        },
+      );
 
       setIsSaved((value) => !value);
     } catch (requestError) {
@@ -117,7 +124,6 @@ const PodcastPage = () => {
         title={podcast.name}
         imageUrl={podcast.images[0]?.url}
         description={podcast.description}
-        // meta={[podcast.publisher, `${podcast.total_episodes} episodes`]}
         isPlaying={
           isPlaying && episodes.some(({ id }) => id === currentTrack?.id)
         }

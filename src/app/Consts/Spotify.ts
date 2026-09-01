@@ -9,3 +9,4 @@ export const SPOTIFY_API_BASE = 'https://api.spotify.com/v1'
 export const ACCESS_TOKEN_KEY = 'access_token'
 export const REFRESH_TOKEN_KEY = 'refresh_token'
 export const CODE_VERIFIER_KEY = 'spotify_code_verifier'
+export const ACCESS_TOKEN_EXPIRES_AT_KEY ="spotify_access_token_expires_at";

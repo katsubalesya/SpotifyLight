@@ -1,4 +1,5 @@
 import {
+  Music2,
   Pause,
   Play,
   SkipBack,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 import { usePlayer } from "./playerContext";
 import styles from "./player.module.css";
+import { Button } from "../../shared/UI/Button";
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -17,11 +19,13 @@ const formatTime = (seconds: number) => {
 export const Player = () => {
   const {
     currentTrack,
+    isReady,
+    isConnecting,
     isPlaying,
     progress,
     duration,
     volume,
-    hasAudio,
+    playerError,
     togglePlay,
     playNext,
     playPrevious,
@@ -29,52 +33,66 @@ export const Player = () => {
     setVolume,
   } = usePlayer();
 
+  const isTrackSelected = Boolean(currentTrack);
+
   return (
     <footer className={styles.player}>
       <div className={styles.track}>
         {currentTrack?.imageUrl ? (
-          <img className={styles.cover} src={currentTrack.imageUrl} alt="" />
+          <img
+            className={styles.cover}
+            src={currentTrack.imageUrl}
+            alt={`Cover ${currentTrack.title}`}
+          />
         ) : (
-          <div className={styles.cover}>♪</div>
+          <div className={styles.cover} aria-hidden="true">
+            <Music2 />
+          </div>
         )}
         <div className={styles.trackText}>
           <p className={styles.title}>
             {currentTrack?.title ?? "Track not selected"}
           </p>
           <p className={styles.artist}>
-            {currentTrack?.artists.join(", ") ?? "Select a composition from the list"}
+            {currentTrack?.artists.join(", ") ??
+              "Select a composition from the list"}
           </p>
         </div>
       </div>
 
       <div className={styles.controls}>
         <div className={styles.buttons}>
-          <button
+          <Button
+            variant="icon"
+            className={styles.controlButton}
             onClick={playPrevious}
-            disabled={!currentTrack}
+            disabled={!isTrackSelected}
             aria-label="Previous track"
           >
             <SkipBack size={20} />
-          </button>
-          <button
-            className={styles.play}
+          </Button>
+          <Button
+            variant="secondary"
+            className={styles.playButton}
             onClick={togglePlay}
-            disabled={!currentTrack}
-            aria-label={isPlaying ? "Pause": "Play"}
+            disabled={!isTrackSelected || !isReady}
+            aria-label={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? (
               <Pause size={20} fill="currentColor" />
             ) : (
               <Play size={20} fill="currentColor" />
             )}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="icon"
+            className={styles.controlButton}
             onClick={playNext}
-            disabled={!currentTrack}
+            disabled={!isTrackSelected}
             aria-label="Next track"
           >
             <SkipForward size={20} />
-          </button>
+          </Button>
         </div>
 
         <div className={styles.progress}>
@@ -86,13 +104,19 @@ export const Player = () => {
             step="1"
             value={Math.min(progress, duration || 1)}
             onChange={(event) => seek(Number(event.target.value))}
-            disabled={!hasAudio}
+            disabled={!currentTrack || !isReady}
             aria-label="Playback position"
           />
           <span>{formatTime(duration)}</span>
         </div>
-        {currentTrack && !hasAudio && (
-          <span className={styles.notice}>Audio preview is unavailable</span>
+        {isConnecting && (
+          <span className={styles.notice}>Connecting to Spotify...</span>
+        )}
+
+        {playerError && (
+          <span className={styles.notice} role="alert">
+            {playerError}
+          </span>
         )}
       </div>
 

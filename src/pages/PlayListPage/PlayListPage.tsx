@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useMemo, useState, type FC } from "react";
 import { useParams } from "react-router-dom";
 
-import { useAccessToken } from "../../entities/hooks/useAccessToken";
-import type { SpotifyPlaylistsResponse } from "../../entities/playlists/api/types";
+import { useAccessToken } from "../../features/auth/model/useAccessToken";
+import type { SpotifyPlaylist } from "../../entities/playlists/api/types";
 import { spotifyFetch } from "../../shared/API/fetchRequest";
-import { TrackList } from "../../entities/trackList/ui/trackList";
-import type { TrackRow } from "../../entities/trackrow/model/types";
+import { TrackList } from "../../entities/track/ui/trackList";
 import { usePlayer } from "../../widgets/Player/playerContext";
 import { PageContainer } from "../../shared/UI/pageContainer";
+import type { TrackRowData } from "../../entities/track";
 
 const PlayListPage: FC = () => {
   const token = useAccessToken();
   const { id } = useParams();
 
   const [currentPlaylist, setCurrentPlaylist] =
-    useState<SpotifyPlaylistsResponse | null>(null);
+    useState<SpotifyPlaylist | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { currentTrack, isPlaying, playTrack } = usePlayer();
@@ -27,9 +27,7 @@ const PlayListPage: FC = () => {
         setLoading(true);
         setError("");
 
-        const data = await spotifyFetch<SpotifyPlaylistsResponse>(
-          `/playlists/${id}`,
-        );
+        const data = await spotifyFetch<SpotifyPlaylist>(`/playlists/${id}`);
 
         setCurrentPlaylist(data);
       } catch (requestError) {
@@ -47,27 +45,35 @@ const PlayListPage: FC = () => {
     void loadCurrentPlaylist(id);
   }, [id, loadCurrentPlaylist]);
 
-  const tracks = useMemo<TrackRow[]>(() => {
-    if (!currentPlaylist?.items) return [];
+  const tracks = useMemo<TrackRowData[]>(() => {
+    const playlistItems = currentPlaylist?.items;
+    if (!playlistItems) return [];
 
-    return currentPlaylist.items.items.flatMap(({ item }) => {
-      if (!item) return [];
+    return playlistItems.items.flatMap(({ item }) => {
+      if (!item) {
+        return [];
+      }
+      if (item.type !== "track") {
+        return [];
+      }
 
       return [
         {
           id: item.id,
+          uri: item.uri,
+          type: item.type,
           title: item.name,
           artists: item.artists.map((artist) => artist.name),
           album: item.album?.name,
           imageUrl: item.album?.images[0]?.url ?? null,
           durationMs: item.duration_ms,
-          previewUrl: item.preview_url,
+          externalUrl: item.external_urls.spotify,
         },
       ];
     });
   }, [currentPlaylist]);
 
-  const handleTrackPlay = (track: TrackRow) => {
+  const handleTrackPlay = (track: TrackRowData) => {
     playTrack(track, tracks);
   };
 
@@ -96,14 +102,6 @@ const PlayListPage: FC = () => {
           emptyMessage="There are no tracks in this playlist yet."
         />
       </PageContainer.Content>
-
-      {/* Список в доработке*/}
-      {/* {currentPlaylist?.tracks?.items?.map(({ track }: any) => (
-        <div key={track.id}>
-          {track.name} —{" "}
-          {track.artists.map((artist: any) => artist.name).join(", ")}
-        </div>
-      ))} * */}
     </PageContainer>
   );
 };

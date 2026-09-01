@@ -43,9 +43,12 @@
     width: min(220px, 55%);
   }
 }
+.profileWrapper {
+  position: relative;
+  margin-left: auto;
+}
 
 .profile {
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -53,13 +56,138 @@
   border: none;
   border-radius: 20px;
 
-  background-color: var(--bg-base);
+  background-color: var(--bg-card);
   color: var(--text-base);
   cursor: pointer;
 }
 
+.profile:hover {
+  background-color: var(--bg-card-hover);
+}
+
+.profile:focus-visible {
+  outline: 2px solid var(--text-base);
+  outline-offset: 2px;
+}
+
 .profile span {
-   @media (max-width: 768px) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  width: 240px;
+  padding: 8px;
+  border: 1px solid var(--bg-card);
+  border-radius: 8px;
+  background-color: var(--bg-highlight);
+
+  box-shadow: 0 8px 24px var(--text-subdued);
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px;
+  margin-bottom: 4px;
+
+  border-bottom: 1px solid var(--bg-highlight);
+}
+
+.menuAvatar,
+.menuAvatarFallback {
+  flex-shrink: 0;
+
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+}
+
+.menuAvatar {
+  object-fit: cover;
+}
+
+.menuAvatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-highlight);
+}
+
+.profileName,
+.profileStatus,
+.profileError {
+  margin: 0;
+  font-size: 14px;
+}
+
+.profileName {
+  overflow: hidden;
+  max-width: 150px;
+  color: var(--text-base);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileStatus {
+  color: var(--text-subdued);
+}
+
+.profileError {
+  color: #ff8a8a;
+}
+
+.profileMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-base);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.profileMenuItem:hover {
+  background-color: var(--bg-card-hover);
+}
+
+.profileMenuItem:focus-visible {
+  outline: 2px solid var(--text-base);
+  outline-offset: -2px;
+}
+
+@media (max-width: 768px) {
+  .profile span {
     display: none;
+  }
+
+  .profile {
+    padding: 8px;
+  }
+
+  .profileMenu {
+    width: 210px;
   }
 }

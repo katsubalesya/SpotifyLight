@@ -1,15 +1,15 @@
 import { spotifyFetch } from "../../../shared/API/fetchRequest";
-import type { IPodcast } from "../model/types";
-import type { ISpotifySavedPodcast } from "./types";
+import type { Podcast } from "../model/types";
+import type { SpotifySavedPodcast } from "./types";
 
 
-interface ISavedPodcastsResponse {
-    items: ISpotifySavedPodcast[];
+interface SavedPodcastsResponse {
+    items: SpotifySavedPodcast[];
 }
 
-export const getSavedPodcasts = async (): Promise<IPodcast[]> => {
+export const getSavedPodcasts = async (): Promise<Podcast[]> => {
 
-  const data = await spotifyFetch<ISavedPodcastsResponse>(
+  const data = await spotifyFetch<SavedPodcastsResponse>(
     (`/me/shows?limit=50`)
   )
     return data.items.map((item) => ({
@@ -18,7 +18,6 @@ export const getSavedPodcasts = async (): Promise<IPodcast[]> => {
     uri: item.show.uri,
     externalUrl: item.show.external_urls.spotify,
     imageUrl: item.show.images[0]?.url ?? null,
-    publisher: item.show.publisher ?? "Podcast",
     description: item.show.description,
     totalEpisodes: item.show.total_episodes,
   }))

@@ -4,7 +4,6 @@ export interface SpotifyShow {
   id: string;
   name: string;
   description: string;
-  publisher?: string;
   total_episodes: number;
   images: SpotifyImage[];
   episodes: {
@@ -12,7 +11,7 @@ export interface SpotifyShow {
   };
 }
 
-export interface ISpotifySavedPodcast {
+export interface SpotifySavedPodcast {
     show: {
         id: string;
         name: string;
@@ -21,7 +20,6 @@ export interface ISpotifySavedPodcast {
             spotify: string;
         };
         images: SpotifyImage[];
-        publisher?: string;
         description: string;
         total_episodes: number;
     }

@@ -1,11 +1,11 @@
 import type { FC } from "react";
-import type { IRecentTrack } from "../model/types";
+import type { RecentTrack } from "../model/types";
 
-interface IRecentTrackListProps {
-  tracks: IRecentTrack[];
+interface RecentTrackListProps {
+  tracks: RecentTrack[];
 }
 
-export const RecentTrackList: FC<IRecentTrackListProps> = ({
+export const RecentTrackList: FC<RecentTrackListProps> = ({
   tracks,
 }) => {
   if (tracks.length === 0) {

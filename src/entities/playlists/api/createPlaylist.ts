@@ -1,10 +1,10 @@
 import { spotifyFetch } from "../../../shared/API/fetchRequest";
-import type { CreatePlaylistData, SpotifyPlaylistsResponse } from "./types";
+import type { CreatePlaylistData, SpotifyPlaylist } from "./types";
 
 export const createPlaylist = (
   playlistData: CreatePlaylistData,
-): Promise<SpotifyPlaylistsResponse> => {
-  return spotifyFetch<SpotifyPlaylistsResponse>("/me/playlists", {
+): Promise<SpotifyPlaylist> => {
+  return spotifyFetch<SpotifyPlaylist>("/me/playlists", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

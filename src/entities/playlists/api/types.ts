@@ -1,67 +1,56 @@
 import type {
+  SpotifyEpisode,
   SpotifyExternalUrls,
   SpotifyImage,
   SpotifyTrack,
 } from "../../../shared/API/typesCommon";
 
-export interface SpotifyPlaylistItem {
-  item: SpotifyTrack | null;
-}
-
-export interface ISpotifyPlaylist {
-  id: string;
-  name: string;
-  description: string;
+export interface SpotifyPlaylist {
   collaborative: boolean;
-  public: boolean;
-  images: SpotifyImage[] | null;
+  description: string | null;
   external_urls: SpotifyExternalUrls;
-  owner: {
-    display_name: string;
-  };
-  tracks: {
-    href: string;
-    total: number;
-    items: SpotifyPlaylistItem[];
-  };
-}
-
-export interface SpotifyPlaylistsResponse {
-//   items: ISpotifyPlaylist[];
-//   limit: number;
-//   offset: number;
-//   total: number;
-//   next: string | null;
-//   previous: string | null;
-collaborative: boolean;
-  description: string;
-  external_urls: { spotify: string };
   href: string;
   id: string;
-  images: Array<{
-    width: number | null;
-    height: number | null;
-    url: string;
-  }> | null;
+  images: SpotifyImage[] | null;
   name: string;
-  owner: { display_name: string };
-  primary_color: string | null;
-  public: boolean;
+  owner: SpotifyPlaylistOwner | null;
+  // primary_color: string | null;
+  public: boolean | null;
   snapshot_id: string;
-  items?: { href: string; total: number; items: SpotifyPlaylistItem[] };
-  type: string;
+  items?: SpotifyPlaylistItemsResponse;
+  type: "playlist";
   uri: string;
 }
 
-export interface LoadPlaylistsResponse {
+export interface SpotifyPaging<T> {
   href: string;
-  items: Array<SpotifyPlaylistsResponse>;
   limit: number;
   next: string | null;
   offset: number;
   previous: string | null;
   total: number;
+  items: T[];
 }
+
+export interface SpotifyPlaylistOwner {
+  id: string;
+  display_name: string | null;
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  type: "user";
+  uri: string;
+}
+
+export interface SpotifyPlaylistItem {
+  added_at: string | null;
+  item: SpotifyTrack | SpotifyEpisode | null;
+}
+
+// список плейлистов
+export type SpotifyPlaylistsResponse =  SpotifyPaging<SpotifyPlaylist>;
+
+// список треков/эпизодов одного плейлиста
+export type SpotifyPlaylistItemsResponse = SpotifyPaging<SpotifyPlaylistItem>;
 
 export interface CreatePlaylistData {
   name: string;

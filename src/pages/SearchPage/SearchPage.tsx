@@ -6,21 +6,11 @@ import type {
   SpotifySearchResponse,
   SpotifySearchShow,
   SpotifySearchTrack,
-} from "../../entities/search/api/types";
+} from "../../features/search/api/types";
 import { useEffect, useState } from "react";
-import { searchSpotify } from "../../entities/search/api/searchSpotify";
+import { searchSpotify } from "../../features/search/index";
 import styles from "./SearchPage.module.css";
 
-// import { useSearchParams } from "react-router-dom";
-
-// const SearchPage = () => {
-//   const [searchParams] = useSearchParams();
-//   const searchQuery = searchParams.get("q") ?? "";
-
-//   return <div> {searchQuery}</div>;
-// };
-
-// export default SearchPage;
 const removeEmptyItems = <T,>(items: Array<T | null> | undefined): T[] => {
   return items?.filter((item): item is T => item !== null) ?? [];
 };
@@ -196,7 +186,7 @@ const SearchPage = () => {
             <SearchResultCard
               key={show.id}
               title={show.name}
-              subtitle={show.publisher ?? "Podcast"}
+              subtitle={show.name ?? "Podcast"}
               imageUrl={show.images[0]?.url}
               to={`/podcasts/${show.id}`}
             />

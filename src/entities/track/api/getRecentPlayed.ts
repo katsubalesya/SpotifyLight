@@ -1,52 +1,16 @@
 // https://developer.spotify.com/documentation/web-api/reference/get-recently-played?utm_source=chatgpt.com
 import { spotifyFetch } from "../../../shared/API/fetchRequest";
-import type { IRecentTrack } from "../model/types";
+import type { RecentTrack } from "../model/types";
+import type { SpotifyRecentTrack } from "./types";
 
-interface ISpotifyRecentTrack {
-  track: {
-    id: string;
-    name: string;
-    external_urls: {
-      spotify: string;
-    };
-    artists: {
-      name: string;
-    }[];
-    album: {
-      name: string;
-      images: {
-        url: string;
-      }[];
-    };
-  };
-  played_at: string;
+interface RecentlyPlayedResponse {
+  items: SpotifyRecentTrack[];
 }
 
-interface IRecentlyPlayedResponse {
-  items: ISpotifyRecentTrack[];
-}
-
-export const getRecentlyPlayed = async (): 
-Promise<IRecentTrack[]> => {
-  const data = await spotifyFetch<IRecentlyPlayedResponse>(`/me/player/recently-played?limit=20`);
-
-
-//   token: string
-// ): Promise<IRecentTrack[]> => {
-//   const response = await fetch(
-//     "https://api.spotify.com/v1/me/player/recently-played?limit=20",
-//     {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     }
-//   );
-
-//   if (!response.ok) {
-//     throw new Error(`Spotify error: ${response.status}`);
-//   }
-
-//   const data: IRecentlyPlayedResponse = await response.json();
+export const getRecentlyPlayed = async (): Promise<RecentTrack[]> => {
+  const data = await spotifyFetch<RecentlyPlayedResponse>(
+    `/me/player/recently-played?limit=20`,
+  );
 
   return data.items.map((item) => ({
     id: item.track.id,

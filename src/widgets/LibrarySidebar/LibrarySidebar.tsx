@@ -5,9 +5,9 @@ import { Button } from "../../shared/UI/Button";
 import { Search } from "../../shared/UI/Search";
 import styles from "./LibrarySidebar.module.css";
 
-import { LibraryList, type LibraryItem } from "../../entities/playlists/ui";
+import { LibraryList, type LibraryItem } from "./ui";
 import { RecentTrackList } from "../../entities/track/ui/recentTrackList";
-import { useLibrary } from "../../entities/library/model/useLibrary";
+import { useLibrary } from "../../features/library/model/useLibrary";
 
 type LibraryVariant =
   | "playlists"
@@ -69,7 +69,7 @@ export const LibrarySidebar: FC<LibrarySidebarProps> = ({
         includesSearchQuery(normalizedQuery, item.name, item.artistName),
       ),
       podcasts: podcasts.filter((item) =>
-        includesSearchQuery(normalizedQuery, item.name, item.publisher),
+        includesSearchQuery(normalizedQuery, item.name),
       ),
       tracks: tracks.filter((item) =>
         includesSearchQuery(
@@ -196,7 +196,7 @@ export const LibrarySidebar: FC<LibrarySidebarProps> = ({
               id: podcast.id,
               type: "podcast",
               title: podcast.name,
-              subtitle: `Podcast ${podcast.publisher}`,
+              subtitle: `Podcast ${podcast.name}`,
               imageUrl: podcast.imageUrl ?? null,
               to: `/podcasts/${podcast.id}`,
             }))}

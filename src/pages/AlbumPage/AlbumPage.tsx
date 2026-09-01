@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { TrackList } from "../../entities/trackList/ui/trackList";
-import type { TrackRow } from "../../entities/trackrow/model/types";
-import { PageHeader } from "../../entities/pageHeader/pageHeader";
+import { TrackList } from "../../entities/track/ui/trackList";
+import { PageHeader } from "../../widgets/pageHeader/pageHeader";
 import { usePlayer } from "../../widgets/Player/playerContext";
 
 // import styles from "./AlbumPage.module.css";
 import { spotifyFetch } from "../../shared/API/fetchRequest";
 import type { SpotifyAlbum } from "../../shared/API/typesCommon";
 import { PageContainer } from "../../shared/UI/pageContainer";
+import type { TrackRow } from "../../entities/track/model/types";
 
 const AlbumPage = () => {
   const { albumId } = useParams<{ albumId: string }>();
@@ -41,12 +41,15 @@ const AlbumPage = () => {
 
     return album.tracks.items.map((track) => ({
       id: track.id,
+      uri: track.uri,
+type: "track",
       title: track.name,
       artists: track.artists.map((artist) => artist.name),
       album: album.name,
       imageUrl: album.images[0]?.url ?? null,
       durationMs: track.duration_ms,
-      previewUrl: track.preview_url,
+      // previewUrl: track.preview_url,
+      externalUrl: track.external_urls.spotify,
     }));
   }, [album]);
 

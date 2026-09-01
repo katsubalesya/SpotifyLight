@@ -10,11 +10,13 @@ export const SCOPES_FOR_API = [
   "user-library-modify",
   "user-library-read",
   "user-read-private",
-  "user-read-email",
   "user-read-recently-played",
 
   "user-read-playback-state",
   "user-modify-playback-state",
-  
 
+  "streaming",
+  "user-read-currently-playing",
+  "user-read-playback-state",
+  "user-modify-playback-state",
 ];

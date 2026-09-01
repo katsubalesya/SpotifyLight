@@ -13,20 +13,13 @@
   border-right: 1px solid var(--bg-base);
   box-sizing: border-box;
 
-  /* @media (max-width: 1024px) {
-    min-width: 230px;
-  } */
-
   @media (max-width: 768px) {
     display: none;
   }
-
-    &:hover {
-    .closeIcon {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
+}
+.sidebar:hover.closeIcon {
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .listContainer {
@@ -54,10 +47,9 @@
   transition:
     transform 0.3s ease-in-out,
     opacity 1.2s ease-in-out;
-
-  &:hover {
-    stroke: var(--text-base);
-  }
+}
+.closeIcon:hover {
+  stroke: var(--text-base);
 }
 
 .headerLeft {

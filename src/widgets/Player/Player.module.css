@@ -4,7 +4,6 @@
   left: 0;
   z-index: 20;
   width: 100%;
-  /* height: var(--player-height); */
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
@@ -44,7 +43,9 @@
   }
 }
 
-.trackText { min-width: 0; }
+.trackText {
+  min-width: 0;
+}
 
 .title,
 .artist {
@@ -78,33 +79,6 @@
   }
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--text-base);
-    cursor: pointer;
-  }
-
-  button:disabled { opacity: 0.35; cursor: not-allowed; }
-}
-
-.play {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: var(--text-base);
-  color: var(--bg-base);
-}
-
 .progress {
   display: flex;
   align-items: center;
@@ -119,7 +93,10 @@
   }
 }
 
-.notice { color: var(--text-subdued); font-size: 10px; }
+.notice {
+  color: var(--text-subdued);
+  font-size: 10px;
+}
 
 .volume {
   display: flex;

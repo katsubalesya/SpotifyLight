@@ -8,6 +8,9 @@ interface IButtonProps extends PropsWithChildren {
   disabled?: boolean;
   fullWidth?: boolean;
   className?: string;
+  ariaLabel?: string;
+  ariaExpanded?: boolean;
+  ariaHaspopup?: boolean;
 }
 
 export const Button: FC<IButtonProps> = ({
@@ -18,9 +21,11 @@ export const Button: FC<IButtonProps> = ({
   fullWidth = false,
   onClick,
   className = "",
-  
+  ariaLabel,
+  ariaExpanded,
+  ariaHaspopup,
 }) => {
-     const buttonClassName = [
+  const buttonClassName = [
     styles.button,
     styles[variant],
     fullWidth ? styles.fullWidth : "",
@@ -35,6 +40,9 @@ export const Button: FC<IButtonProps> = ({
       className={buttonClassName}
       disabled={disabled}
       onClick={onClick}
+      aria-label={ariaLabel}
+      aria-expanded={ariaExpanded}
+      aria-haspopup={ariaHaspopup}
     >
       {children}
     </button>
