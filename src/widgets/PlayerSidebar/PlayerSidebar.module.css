@@ -1,7 +1,8 @@
 .plSidebar {
   flex: 0 0 30px;
   width: 30px;
+  
 }
 .plSidebar:hover {
-  width: 100px;
+  width: 120px;
 }

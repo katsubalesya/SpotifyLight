@@ -1,4 +1,5 @@
 import {
+  Heart,
   Music2,
   Pause,
   Play,
@@ -10,6 +11,7 @@ import {
 import { usePlayer } from "./playerContext";
 import styles from "./player.module.css";
 import { Button } from "../../shared/UI/Button";
+import { useLikedTrack } from "../../entities/track/model/useLikedTrack";
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -35,6 +37,19 @@ export const Player = () => {
 
   const isTrackSelected = Boolean(currentTrack);
 
+  const likedTrackId =
+  currentTrack?.type === "track"
+    ? currentTrack.id
+    : undefined;
+
+const {
+  isLiked,
+  isChecking,
+  isUpdating,
+  error: likedError,
+  toggleLiked,
+} = useLikedTrack(likedTrackId);
+
   return (
     <footer className={styles.player}>
       <div className={styles.track}>
@@ -58,6 +73,28 @@ export const Player = () => {
               "Select a composition from the list"}
           </p>
         </div>
+
+{currentTrack?.type === "track" && (
+        <Button
+          variant="icon"
+          className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
+          onClick={() => void toggleLiked()}
+          disabled={!currentTrack || isChecking || isUpdating}
+          aria-label={
+            isLiked ? "Remove from Liked Songs" : "Save to Liked Songs"
+          }
+          aria-pressed={isLiked}
+        >
+          <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
+        </Button>
+)}
+
+        {likedError && (
+    <span className={styles.likeError} role="alert">
+      {likedError}
+    </span>
+  )}
+
       </div>
 
       <div className={styles.controls}>

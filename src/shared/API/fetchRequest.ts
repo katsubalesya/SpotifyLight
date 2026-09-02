@@ -80,6 +80,13 @@ export const spotifyFetch = async <T>(
   if (response.status === 204) {
     return undefined as T;
   }
+  const body = await response.text();
 
-  return response.json() as Promise<T>;
+if (!body) {
+  return undefined as T;
+}
+
+return JSON.parse(body) as T;
+
+  // return response.json() as Promise<T>;
 };
