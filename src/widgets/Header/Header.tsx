@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
-import Logo from "../../app/img,logo/Primary_Logo_White_RGB.svg";
+import Logo from "../../app/logo/Primary_Logo_White_RGB.svg";
 import { getCurrentUser } from "../../entities/user";
 import type { SpotifyProfile } from "../../entities/user";
 import { clearTokens } from "../../shared/API/spotifyAuth";

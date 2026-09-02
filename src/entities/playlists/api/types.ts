@@ -7,18 +7,17 @@ import type {
 
 export interface SpotifyPlaylist {
   collaborative: boolean;
-  description: string | null;
-  external_urls: SpotifyExternalUrls;
-  href: string;
+  type: "playlist";
   id: string;
-  images: SpotifyImage[] | null;
   name: string;
   owner: SpotifyPlaylistOwner | null;
-  // primary_color: string | null;
+  external_urls: SpotifyExternalUrls;
+  description: string | null;
+  images: SpotifyImage[] | null;
+  href: string;
   public: boolean | null;
   snapshot_id: string;
   items?: SpotifyPlaylistItemsResponse;
-  type: "playlist";
   uri: string;
 }
 
@@ -47,7 +46,7 @@ export interface SpotifyPlaylistItem {
 }
 
 // список плейлистов
-export type SpotifyPlaylistsResponse =  SpotifyPaging<SpotifyPlaylist>;
+export type SpotifyPlaylistsResponse = SpotifyPaging<SpotifyPlaylist>;
 
 // список треков/эпизодов одного плейлиста
 export type SpotifyPlaylistItemsResponse = SpotifyPaging<SpotifyPlaylistItem>;

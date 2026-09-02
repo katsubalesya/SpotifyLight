@@ -35,28 +35,25 @@ export const spotifyFetch = async <T>(
   }
 
   if (response.status === 429) {
-  const retryAfter = response.headers.get("Retry-After");
+    const retryAfter = response.headers.get("Retry-After");
+    const errorBody = await response
+      .clone()
+      .json()
+      .catch(() => null);
+    const isQuotaExceeded = errorBody?.error?.reason === "QUOTA_EXCEEDED";
 
-  const errorBody = await response
-    .clone()
-    .json()
-    .catch(() => null);
+    if (isQuotaExceeded) {
+      throw new Error(
+        "Spotify development quota has been exceeded. Try again later.",
+      );
+    }
 
-  const isQuotaExceeded =
-    errorBody?.error?.reason === "QUOTA_EXCEEDED";
-
-  if (isQuotaExceeded) {
     throw new Error(
-      "Spotify development quota has been exceeded. Try again later.",
+      retryAfter
+        ? `Too many Spotify requests. Try again in ${retryAfter} seconds.`
+        : "Too many Spotify requests. Try again later.",
     );
   }
-
-  throw new Error(
-    retryAfter
-      ? `Too many Spotify requests. Try again in ${retryAfter} seconds.`
-      : "Too many Spotify requests. Try again later.",
-  );
-}
 
   if (!response.ok) {
     const errorBody = await response

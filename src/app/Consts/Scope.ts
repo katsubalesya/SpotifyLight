@@ -17,6 +17,4 @@ export const SCOPES_FOR_API = [
 
   "streaming",
   "user-read-currently-playing",
-  "user-read-playback-state",
-  "user-modify-playback-state",
 ];
